@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import FormInput from "../ui/FormInput";
 import Button from "../ui/Button";
 import useUser from "../../hooks/useUser";
-import { AlertCircle, ArrowRight } from "lucide-react";
+import { AlertCircle, ArrowRight, CheckCircle2, Mail } from "lucide-react";
 
 export default function AuthForm({ mode = "login" }) {
   const router = useRouter();
@@ -19,6 +19,7 @@ export default function AuthForm({ mode = "login" }) {
   });
 
   const [error, setError] = useState("");
+  const [successInfo, setSuccessInfo] = useState("");
   const [loading, setLoading] = useState(false);
 
   const isSignup = mode === "signup";
@@ -26,11 +27,13 @@ export default function AuthForm({ mode = "login" }) {
   const handleChange = (field) => (e) => {
     setFormData((prev) => ({ ...prev, [field]: e.target.value }));
     if (error) setError("");
+    if (successInfo) setSuccessInfo("");
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    setSuccessInfo("");
 
     if (isSignup) {
       if (!formData.name.trim()) {
@@ -51,8 +54,15 @@ export default function AuthForm({ mode = "login" }) {
 
     try {
       if (isSignup) {
-        await signup(formData.name, formData.email, formData.password);
-        router.push("/onboarding");
+        const res = await signup(formData.name, formData.email, formData.password);
+        
+        if (res?.requiresConfirmation) {
+          setSuccessInfo(
+            `✓ Account created! Supabase has sent a confirmation link to ${formData.email}. Please check your inbox and click the link to verify your email address before signing in.`
+          );
+        } else {
+          router.push("/onboarding");
+        }
       } else {
         const res = await login(formData.email, formData.password);
         const isCompleted = res?.user?.onboarding_completed;
@@ -63,6 +73,7 @@ export default function AuthForm({ mode = "login" }) {
         }
       }
     } catch (err) {
+      console.error("Auth submit error:", err);
       setError(
         err?.message || "Authentication failed. Please check your credentials and try again."
       );
@@ -73,13 +84,41 @@ export default function AuthForm({ mode = "login" }) {
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+      {/* Error Callout */}
       {error && (
         <div
           role="alert"
-          className="p-3.5 rounded-xl bg-red-50 border border-red-200 text-red-800 text-xs font-semibold flex items-start gap-2.5"
+          className="p-3.5 rounded-xl bg-red-50 border border-red-200 text-red-800 text-xs font-semibold flex items-start gap-2.5 animate-in fade-in"
         >
           <AlertCircle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
           <span>{error}</span>
+        </div>
+      )}
+
+      {/* Confirmation Email Sent Success Notice */}
+      {successInfo && (
+        <div
+          role="status"
+          className="p-4 rounded-xl bg-[#F0FDF4] border border-[#BBF7D0] text-[#15803D] text-xs font-semibold space-y-2 animate-in fade-in"
+        >
+          <div className="flex items-start gap-2.5 font-bold text-sm text-[#15803D]">
+            <Mail className="w-5 h-5 text-[#15803D] shrink-0 mt-0.5" />
+            <span>Check Your Email Inbox</span>
+          </div>
+          <p className="text-xs text-[#166534] font-medium leading-relaxed">
+            {successInfo}
+          </p>
+          <div className="pt-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => router.push("/login")}
+              className="text-xs font-bold border-[#BBF7D0] text-[#15803D] hover:bg-[#DCFCE7]"
+            >
+              Proceed to Sign In →
+            </Button>
+          </div>
         </div>
       )}
 
