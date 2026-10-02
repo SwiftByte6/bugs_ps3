@@ -1,0 +1,30 @@
+{
+  "title": "Junior Data Analyst / ML Associate",
+  "company": "CogniCorp Technologies",
+  "location": "Bengaluru, Karnataka, India",
+  "work_mode": "Hybrid",
+  "salary": "Rs. 6,00,000 - 9,00,000 per annum",
+  "employment_type": "Full-time",
+  "required_skills": [
+    "Python",
+    "SQL",
+    "Machine Learning",
+    "Power BI",
+    "Data Analysis"
+  ],
+  "preferred_skills": [
+    "Tableau",
+    "Docker",
+    "Git",
+    "FastAPI"
+  ],
+  "experience_required": "0-2 years (internship accepted)",
+  "education": "B.Tech / B.E. / B.Sc in Computer Science or related field",
+  "responsibilities": [
+    "Extract, clean, and analyze datasets from databases and APIs",
+    "Build automated reporting workflows using Python and SQL",
+    "Create interactive dashboards in Power BI",
+    "Assist in feature engineering and ML model evaluation"
+  ],
+  "accessibility_notes": "Wheelchair accessible campus, screen reader friendly portal, flexible hybrid accommodation."
+}

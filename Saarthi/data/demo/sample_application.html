@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CogniCorp Careers - Job Application</title>
+</head>
+<body>
+    <main>
+        <h1>Job Application: Junior Data Analyst</h1>
+        <p>Please complete this form to apply for the Junior Data Analyst position.</p>
+
+        <form id="job-application-form" action="/submit" method="POST">
+            <fieldset>
+                <legend>Personal Information</legend>
+                <div>
+                    <label for="full-name">Full Name *</label>
+                    <input type="text" id="full-name" name="name" required placeholder="Enter your full name">
+                </div>
+                <div>
+                    <label for="email">Email Address *</label>
+                    <input type="email" id="email" name="email" required placeholder="name@example.com">
+                </div>
+                <div>
+                    <label for="phone">Phone Number *</label>
+                    <input type="tel" id="phone" name="phone" required placeholder="+91 9876543210">
+                </div>
+                <div>
+                    <label for="location">Current Location</label>
+                    <input type="text" id="location" name="location" placeholder="City, State, Country">
+                </div>
+            </fieldset>
+
+            <fieldset>
+                <legend>Professional Links & Experience</legend>
+                <div>
+                    <label for="linkedin">LinkedIn Profile</label>
+                    <input type="url" id="linkedin" name="linkedin" placeholder="https://linkedin.com/in/username">
+                </div>
+                <div>
+                    <label for="github">GitHub Profile</label>
+                    <input type="url" id="github" name="github" placeholder="https://github.com/username">
+                </div>
+                <div>
+                    <label for="portfolio">Portfolio Website</label>
+                    <input type="url" id="portfolio" name="portfolio" placeholder="https://yourportfolio.com">
+                </div>
+                <div>
+                    <label for="experience-years">Years of Experience</label>
+                    <select id="experience-years" name="experience_years">
+                        <option value="0">0-1 years</option>
+                        <option value="1">1-2 years</option>
+                        <option value="3">3+ years</option>
+                    </select>
+                </div>
+            </fieldset>
+
+            <fieldset>
+                <legend>Application Specific Questions</legend>
+                <div>
+                    <!-- Deliberate accessibility issue: missing label for demonstration -->
+                    <input type="text" id="unlabeled-input" name="referral_code" placeholder="Referral Code">
+                </div>
+                <div>
+                    <label for="salary-expectation">Expected Annual Salary (INR)</label>
+                    <input type="text" id="salary-expectation" name="salary_expectation" placeholder="e.g. 7,50,000">
+                </div>
+                <div>
+                    <label for="why-join">Why are you interested in joining CogniCorp?</label>
+                    <textarea id="why-join" name="cover_note" rows="4" placeholder="Tell us about your interest and relevant experience"></textarea>
+                </div>
+                <div>
+                    <label for="accommodations">Do you require any accommodations for the interview?</label>
+                    <textarea id="accommodations" name="accommodations" rows="2" placeholder="Optional - describe any assistive technology, captioning, or formatting needs"></textarea>
+                </div>
+            </fieldset>
+
+            <div>
+                <!-- Deliberate accessibility issue: image button without alt text -->
+                <img src="/static/submit-icon.png" id="submit-icon">
+                <button type="submit" id="btn-submit">Submit Application</button>
+            </div>
+        </form>
+    </main>
+</body>
+</html>

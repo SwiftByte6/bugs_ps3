@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Saarthi - Accessible Job Application Assistant</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <!-- ARIA Live Announcements for Screen Readers -->
+    <div id="screen-reader-announcer" class="sr-only" aria-live="polite" role="status"></div>
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+
+    <!-- ================================================================ -->
+    <!-- ONBOARDING PAGES (shown before main app) -->
+    <!-- ================================================================ -->
+    <div id="onboarding-wrapper" class="onboarding-wrapper" aria-live="polite">
+
+        <!-- PAGE 1: ACCESSIBILITY SELECTION -->
+        <div id="onboarding-page-1" class="onboarding-page active" role="main" aria-labelledby="ob1-title">
+            <div class="onboarding-card">
+                <div class="ob-logo">
+                    <h1>Saarthi</h1>
+                    <p class="ob-tagline">Your Accessible Job Application Assistant</p>
+                </div>
+
+                <div class="ob-tts-bar" id="ob1-tts-bar" aria-label="Read page aloud">
+                    <button type="button" class="btn btn-outline btn-sm" onclick="readAloud(document.getElementById('ob1-question').textContent)" aria-label="Read question aloud">
+                        🔊 Read Aloud
+                    </button>
+                    <button type="button" class="btn btn-danger btn-sm" onclick="stopAllActions()" aria-label="Stop reading">⏹ Stop</button>
+                </div>
+
+                <h2 id="ob1-title" class="ob-question" id="ob1-question">
+                    How can Saarthi make your experience easier?
+                </h2>
+                <p class="ob-subtitle">Select all that apply. Saarthi adapts its interface and interaction style to your needs. <strong>We never diagnose or infer disability.</strong></p>
+
+                <div class="ob-needs-grid" id="ob1-needs-grid" role="group" aria-label="Accessibility needs selection">
+                    <label class="ob-need-card" tabindex="0">
+                        <input type="checkbox" name="ob-need" value="Blind / Low Vision">
+                        <span class="ob-need-icon">👁️</span>
+                        <span class="ob-need-label">Blind / Low Vision</span>
+                        <span class="ob-need-desc">Enables TTS, audio-first flow, high contrast</span>
+                    </label>
+                    <label class="ob-need-card" tabindex="0">
+                        <input type="checkbox" name="ob-need" value="Motor Disability">
+                        <span class="ob-need-icon">🖐️</span>
+                        <span class="ob-need-label">Motor Disability</span>
+                        <span class="ob-need-desc">Enables gesture control, keyboard navigation, head tracking</span>
+                    </label>
+                    <label class="ob-need-card" tabindex="0">
+                        <input type="checkbox" name="ob-need" value="Dyslexia">
+                        <span class="ob-need-icon">📖</span>
+                        <span class="ob-need-label">Dyslexia</span>
+                        <span class="ob-need-desc">Enables dyslexia-friendly font, focus highlights, wider spacing</span>
+                    </label>
+                    <label class="ob-need-card" tabindex="0">
+                        <input type="checkbox" name="ob-need" value="Hearing Impairment">
+                        <span class="ob-need-icon">👂</span>
+                        <span class="ob-need-label">Hearing Impairment</span>
+                        <span class="ob-need-desc">Enables visual captions, text-first interactions</span>
+                    </label>
+                    <label class="ob-need-card" tabindex="0">
+                        <input type="checkbox" name="ob-need" value="Speech Impairment">
+                        <span class="ob-need-icon">🎤</span>
+                        <span class="ob-need-label">Speech Impairment</span>
+                        <span class="ob-need-desc">Prioritizes keyboard, gesture, and click interactions</span>
+                    </label>
+                    <label class="ob-need-card" tabindex="0">
+                        <input type="checkbox" name="ob-need" value="Multiple Accessibility Needs">
+                        <span class="ob-need-icon">♿</span>
+                        <span class="ob-need-label">Multiple Accessibility Needs</span>
+                        <span class="ob-need-desc">Activates all assistive modalities</span>
+                    </label>
+                    <label class="ob-need-card" tabindex="0">
+                        <input type="checkbox" name="ob-need" value="Other">
+                        <span class="ob-need-icon">✏️</span>
+                        <span class="ob-need-label">Other</span>
+                        <span class="ob-need-desc">Describe your needs below</span>
+                    </label>
+                </div>
+
+                <div class="ob-field-group">
+                    <label for="ob1-additional-req"><strong>Any additional requirements?</strong> <span style="font-weight:400;">(optional)</span></label>
+                    <textarea id="ob1-additional-req" class="form-control" rows="2"
+                        placeholder="e.g. Prefer high-contrast yellow on black, need extra time for assessments, prefer audio navigation..."></textarea>
+                </div>
+
+                <div class="ob-actions">
+                    <button type="button" class="btn btn-primary btn-lg" onclick="goToPage(2)" aria-label="Continue to accessibility setup">
+                        Continue →
+                    </button>
+                    <button type="button" class="btn btn-outline btn-sm" onclick="skipOnboarding()" aria-label="Skip onboarding and go to dashboard">
+                        Skip for now
+                    </button>
+                </div>
+
+                <p class="ob-note">You can always update accessibility settings later from the Settings menu.</p>
+            </div>
+        </div>
+
+        <!-- PAGE 2: ADAPTIVE ACCESSIBILITY SETUP -->
+        <div id="onboarding-page-2" class="onboarding-page" role="main" aria-labelledby="ob2-title">
+            <div class="onboarding-card">
+                <div class="ob-back-btn">
+                    <button type="button" class="btn btn-outline btn-sm" onclick="goToPage(1)" aria-label="Go back">← Back</button>
+                </div>
+                <div class="ob-logo">
+                    <h1>Saarthi</h1>
+                    <p class="ob-step-indicator">Step 2 of 4</p>
+                </div>
+                <h2 id="ob2-title" class="ob-question">Setting up your experience...</h2>
+                <p class="ob-subtitle">Based on your selections, Saarthi is activating the following features:</p>
+
+                <div id="ob2-presets-summary" class="ob-presets-grid">
+                    <!-- Populated by JS based on page 1 selections -->
+                </div>
+
+                <div class="ob-interaction-choice card mt-3">
+                    <h3>How would you like to navigate Saarthi?</h3>
+                    <p class="ob-subtitle">Choose your primary interaction mode. You can use multiple modes simultaneously.</p>
+                    <div class="ob-mode-grid" role="group" aria-label="Navigation mode selection">
+                        <label class="ob-mode-card" tabindex="0">
+                            <input type="radio" name="ob-nav-mode" value="mouse" checked>
+                            <span class="ob-need-icon">🖱️</span>
+                            <span class="ob-need-label">Mouse / Touch</span>
+                        </label>
+                        <label class="ob-mode-card" tabindex="0">
+                            <input type="radio" name="ob-nav-mode" value="keyboard">
+                            <span class="ob-need-icon">⌨️</span>
+                            <span class="ob-need-label">Keyboard Only</span>
+                        </label>
+                        <label class="ob-mode-card" tabindex="0">
+                            <input type="radio" name="ob-nav-mode" value="voice">
+                            <span class="ob-need-icon">🎤</span>
+                            <span class="ob-need-label">Voice Commands</span>
+                        </label>
+                        <label class="ob-mode-card" tabindex="0">
+                            <input type="radio" name="ob-nav-mode" value="gestures">
+                            <span class="ob-need-icon">✋</span>
+                            <span class="ob-need-label">Head / Hand Gestures</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="ob-tts-preview card mt-3" id="ob2-tts-preview-card" style="display:none;">
+                    <h3>🔊 Audio-First Setup</h3>
+                    <p>Saarthi will read questions aloud and listen for your spoken answers. Say <strong>"Yes"</strong> or <strong>"No"</strong>, or use head gestures to respond.</p>
+                    <button type="button" class="btn btn-primary" onclick="testTTSPreview()">Test Read Aloud</button>
+                    <span id="ob2-tts-preview-status" class="ml-2"></span>
+                </div>
+
+                <div class="ob-actions">
+                    <button type="button" class="btn btn-primary btn-lg" onclick="applyPresetsAndContinue()">
+                        Apply & Continue →
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- PAGE 3: RESUME / PROFILE SETUP -->
+        <div id="onboarding-page-3" class="onboarding-page" role="main" aria-labelledby="ob3-title">
+            <div class="onboarding-card">
+                <div class="ob-back-btn">
+                    <button type="button" class="btn btn-outline btn-sm" onclick="goToPage(2)" aria-label="Go back">← Back</button>
+                </div>
+                <div class="ob-logo">
+                    <h1>Saarthi</h1>
+                    <p class="ob-step-indicator">Step 3 of 4</p>
+                </div>
+
+                <div class="ob-tts-bar">
+                    <button type="button" class="btn btn-outline btn-sm" onclick="readAloud('Do you already have a resume? Choose Upload Resume to upload a PDF file, or Build Profile to answer questions step by step.')">🔊 Read Aloud</button>
+                    <button type="button" class="btn btn-danger btn-sm" onclick="stopAllActions()">⏹ Stop</button>
+                </div>
+
+                <h2 id="ob3-title" class="ob-question">Do you already have a resume?</h2>
+                <p class="ob-subtitle">You can upload a PDF or build your profile step-by-step. Either way, Saarthi will help you prepare for job applications.</p>
+
+                <div class="ob-choice-cards">
+                    <div class="ob-choice-card" id="ob3-yes-card" onclick="selectResumeSetupOption('upload')" tabindex="0"
+                         onkeydown="if(event.key==='Enter'||event.key===' '){selectResumeSetupOption('upload')}"
+                         role="button" aria-pressed="false">
+                        <span class="ob-need-icon">📄</span>
+                        <h3>YES — Upload Resume</h3>
+                        <p>Upload your existing PDF resume. Saarthi extracts your profile automatically.</p>
+                    </div>
+                    <div class="ob-choice-card" id="ob3-no-card" onclick="selectResumeSetupOption('build')" tabindex="0"
+                         onkeydown="if(event.key==='Enter'||event.key===' '){selectResumeSetupOption('build')}"
+                         role="button" aria-pressed="false">
+                        <span class="ob-need-icon">✏️</span>
+                        <h3>NO — Build Profile</h3>
+                        <p>Answer questions step-by-step. Saarthi reads each question aloud.</p>
+                    </div>
+                </div>
+
+                <!-- Upload Option -->
+                <div id="ob3-upload-section" style="display:none;" class="card mt-3">
+                    <h3>Upload Your Resume (PDF)</h3>
+                    <div class="btn-group mt-2">
+                        <button class="btn btn-primary" onclick="ob3LoadDemoResume()">Load Controlled Demo Resume</button>
+                        <input type="file" id="ob3-resume-file" accept=".pdf" style="display:none" onchange="ob3UploadResume()">
+                        <button class="btn btn-outline" onclick="document.getElementById('ob3-resume-file').click()">Upload Custom PDF</button>
+                    </div>
+                    <div id="ob3-resume-output" class="result-box mt-2">Upload or load a demo to extract your profile...</div>
+                </div>
+
+                <!-- Build Option -->
+                <div id="ob3-build-section" style="display:none;" class="card mt-3">
+                    <h3>Step-by-Step Profile Builder</h3>
+                    <p class="ob-subtitle">Fill in your details. All fields are optional. Press Tab to navigate between fields.</p>
+                    <div class="mb-3">
+                        <button type="button" class="btn btn-accent" id="start-audio-flow-btn" onclick="startAudioFirstProfileBuilding()">
+                            🎙️ Start Audio-First Voice Interview (Hands-Free)
+                        </button>
+                    </div>
+                    <form id="ob3-profile-form" onsubmit="event.preventDefault()">
+                        <div class="ob-form-grid">
+                            <div class="form-group">
+                                <label for="ob3-name">Full Name:</label>
+                                <input type="text" id="ob3-name" class="form-control" placeholder="e.g. Priya Sharma">
+                            </div>
+                            <div class="form-group">
+                                <label for="ob3-email">Email:</label>
+                                <input type="email" id="ob3-email" class="form-control" placeholder="candidate@example.com">
+                            </div>
+                            <div class="form-group">
+                                <label for="ob3-phone">Phone:</label>
+                                <input type="tel" id="ob3-phone" class="form-control" placeholder="+91 9000000000">
+                            </div>
+                            <div class="form-group">
+                                <label for="ob3-location">Location:</label>
+                                <input type="text" id="ob3-location" class="form-control" placeholder="City, State">
+                            </div>
+                            <div class="form-group">
+                                <label for="ob3-degree">Degree / Qualification:</label>
+                                <input type="text" id="ob3-degree" class="form-control" placeholder="e.g. B.Tech Computer Engineering">
+                            </div>
+                            <div class="form-group">
+                                <label for="ob3-college">College / University:</label>
+                                <input type="text" id="ob3-college" class="form-control" placeholder="e.g. PICT Pune">
+                            </div>
+                            <div class="form-group">
+                                <label for="ob3-skills">Technical Skills (comma separated):</label>
+                                <input type="text" id="ob3-skills" class="form-control" placeholder="Python, SQL, Power BI">
+                            </div>
+                            <div class="form-group">
+                                <label for="ob3-roles">Roles Interested In:</label>
+                                <input type="text" id="ob3-roles" class="form-control" placeholder="Data Analyst, Business Analyst">
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-primary mt-3" onclick="ob3SaveBuilderProfile()">Save Profile</button>
+                        <span id="ob3-save-msg" class="ml-2"></span>
+                    </form>
+                </div>
+
+                <div class="ob-actions mt-3">
+                    <button type="button" class="btn btn-primary btn-lg" onclick="goToPage(4)">
+                        Continue →
+                    </button>
+                    <button type="button" class="btn btn-outline btn-sm" onclick="skipOnboarding()">
+                        Skip for now
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- PAGE 4: PROFILE COMPLETION / CONFIRMATION -->
+        <div id="onboarding-page-4" class="onboarding-page" role="main" aria-labelledby="ob4-title">
+            <div class="onboarding-card">
+                <div class="ob-back-btn">
+                    <button type="button" class="btn btn-outline btn-sm" onclick="goToPage(3)" aria-label="Go back">← Back</button>
+                </div>
+                <div class="ob-logo">
+                    <h1>Saarthi</h1>
+                    <p class="ob-step-indicator">Step 4 of 4</p>
+                </div>
+                <h2 id="ob4-title" class="ob-question">You're all set! 🎉</h2>
+                <p class="ob-subtitle">Your accessibility preferences have been saved and your profile is ready. Here's a summary:</p>
+
+                <div id="ob4-completeness-card" class="completeness-card mt-3">
+                    <h3>Profile Completeness</h3>
+                    <p id="ob4-completeness-text">Checking...</p>
+                    <div class="progress-bar-bg">
+                        <div id="ob4-progress-bar" class="progress-bar-fill" style="width: 0%;"></div>
+                    </div>
+                    <div class="completeness-grid" id="ob4-checklist-items"></div>
+                </div>
+
+                <div id="ob4-accessibility-summary" class="card mt-3">
+                    <h3>Active Accessibility Features</h3>
+                    <div id="ob4-active-features" class="ob-features-list">Loading...</div>
+                </div>
+
+                <div class="ob-actions mt-3">
+                    <button type="button" class="btn btn-primary btn-lg" onclick="launchMainApp()" aria-label="Enter Saarthi dashboard">
+                        🚀 Enter Saarthi
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </div><!-- end onboarding-wrapper -->
+
+    <!-- ================================================================ -->
+    <!-- MAIN APPLICATION (hidden until onboarding complete) -->
+    <!-- ================================================================ -->
+    <div id="main-app" style="display:none;">
+
+        <header role="banner" class="app-header">
+            <div class="header-content">
+                <div class="logo-area">
+                    <h1>Saarthi</h1>
+                    <p class="tagline">Accessible Job Application Assistant</p>
+                </div>
+
+                <div class="quick-accessibility-bar" role="toolbar" aria-label="Accessibility quick controls">
+                    <div class="global-audio-bar" role="region" aria-label="Global Text to Speech Player">
+                        <button type="button" id="global-tts-play-btn" class="audio-btn" title="Read current page aloud">
+                            🔊 Read
+                        </button>
+                        <button type="button" id="global-tts-pause-btn" class="audio-btn" title="Pause speech">
+                            ⏸️
+                        </button>
+                        <button type="button" id="global-tts-stop-btn" class="audio-btn" title="Stop speech">
+                            ⏹️
+                        </button>
+                        <button type="button" id="global-tts-repeat-btn" class="audio-btn" title="Repeat last">
+                            🔁
+                        </button>
+                    </div>
+                    <button type="button" id="voice-listen-btn" aria-pressed="false" class="btn btn-outline" title="Activate voice control">
+                        🎤 Voice
+                    </button>
+                    <button type="button" id="toggle-contrast-btn" aria-pressed="false" class="btn btn-outline" title="Toggle high contrast">
+                        🌓 Contrast
+                    </button>
+                    <button type="button" id="toggle-dyslexia-btn" aria-pressed="false" class="btn btn-outline" title="Toggle dyslexia mode">
+                        📖 Dyslexia
+                    </button>
+                    <button type="button" id="toggle-large-text-btn" aria-pressed="false" class="btn btn-outline" title="Toggle large text">
+                        🔍 Text+
+                    </button>
+                    <button type="button" id="stop-speech-btn" class="btn btn-danger" aria-label="Stop all audio" title="Emergency stop">
+                        🛑 STOP
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <div class="app-layout">
+            <!-- Sidebar Navigation: ONLY 6 items as required -->
+            <nav role="navigation" aria-label="Main Navigation" class="app-nav">
+                <ul class="nav-list" role="tablist">
+                    <li role="presentation">
+                        <button role="tab" aria-selected="true" class="nav-tab active" data-tab="tab-profile" id="tab-btn-profile">
+                            👤 Profile
+                        </button>
+                    </li>
+                    <li role="presentation">
+                        <button role="tab" aria-selected="false" class="nav-tab" data-tab="tab-jobsearch" id="tab-btn-jobsearch">
+                            🔍 Job Search
+                        </button>
+                    </li>
+                    <li role="presentation">
+                        <button role="tab" aria-selected="false" class="nav-tab" data-tab="tab-ai-assistant" id="tab-btn-ai-assistant">
+                            🤖 AI Assistant
+                        </button>
+                    </li>
+                    <li role="presentation">
+                        <button role="tab" aria-selected="false" class="nav-tab" data-tab="tab-tracker" id="tab-btn-tracker">
+                            📌 Application Tracker
+                        </button>
+                    </li>
+                    <li role="presentation">
+                        <button role="tab" aria-selected="false" class="nav-tab" data-tab="tab-interview" id="tab-btn-interview">
+                            🎙️ Interview Prep
+                        </button>
+                    </li>
+                </ul>
+
+                <!-- Settings pinned at bottom -->
+                <div class="nav-settings-spacer"></div>
+                <ul class="nav-list" role="tablist">
+                    <li role="presentation">
+                        <button role="tab" aria-selected="false" class="nav-tab" data-tab="tab-settings" id="tab-btn-settings">
+                            ⚙️ Settings
+                        </button>
+                    </li>
+                </ul>
+            </nav>
+
+            <!-- Main Content Area -->
+            <main id="main-content" role="main" class="main-panel">
+
+                <!-- ============================================================ -->
+                <!-- TAB 1: PROFILE (Resume / Candidate Profile) -->
+                <!-- ============================================================ -->
+                <section id="tab-profile" class="tab-pane active" role="tabpanel" aria-labelledby="tab-btn-profile">
+                    <h2>Resume &amp; Candidate Profile</h2>
+
+                    <!-- Profile Completeness Card -->
+                    <div class="completeness-card" id="completeness-card-container">
+                        <h3>Profile Completeness</h3>
+                        <p id="completeness-summary-text">Checking completeness...</p>
+                        <div class="progress-bar-bg">
+                            <div id="completeness-progress-bar" class="progress-bar-fill" style="width: 0%;"></div>
+                        </div>
+                        <div class="completeness-grid" id="completeness-checklist-items"></div>
+                    </div>
+
+                    <div class="card mb-3">
+                        <h3>"Do you already have a resume?"</h3>
+                        <div class="btn-group mb-3">
+                            <button class="btn btn-primary" onclick="selectResumeOption('yes')">YES — Upload / Parse Resume</button>
+                            <button class="btn btn-outline" onclick="selectResumeOption('no')">NO — Build Accessible Profile</button>
+                        </div>
+
+                        <!-- Option YES: Resume Upload -->
+                        <div id="resume-upload-section">
+                            <h4>Upload or Load Resume</h4>
+                            <p>PyMuPDF extracts raw text, parsed deterministically and enhanced with Qwen3.8 27B.</p>
+                            <div class="btn-group mb-3">
+                                <button class="btn btn-primary" onclick="loadDemoResume()">Load Controlled Demo Resume</button>
+                                <input type="file" id="resume-file-input" accept=".pdf" style="display:none" onchange="uploadUserResume()">
+                                <button class="btn btn-outline" onclick="document.getElementById('resume-file-input').click()">Upload Custom PDF</button>
+                            </div>
+                            <div id="resume-output" class="result-box">No resume loaded yet.</div>
+                        </div>
+
+                        <!-- Option NO: Profile Builder -->
+                        <div id="profile-builder-section" style="display: none;" class="mt-3">
+                            <h4>Step-by-Step Profile Builder</h4>
+                            <p>Fill out your details at your own pace. All non-applicable fields may be skipped.</p>
+                            <form id="profile-builder-form" onsubmit="event.preventDefault(); saveProfileBuilder();">
+                                <div class="card-grid">
+                                    <div>
+                                        <h5>Personal</h5>
+                                        <div class="form-group mb-2">
+                                            <label for="build-name">Full Name:</label>
+                                            <input type="text" id="build-name" class="form-control" placeholder="Candidate Name">
+                                        </div>
+                                        <div class="form-group mb-2">
+                                            <label for="build-location">Location:</label>
+                                            <input type="text" id="build-location" class="form-control" placeholder="City, State, Country">
+                                        </div>
+                                        <div class="form-group mb-2">
+                                            <label for="build-email">Email:</label>
+                                            <input type="email" id="build-email" class="form-control" placeholder="candidate@example.com">
+                                        </div>
+                                        <div class="form-group mb-2">
+                                            <label for="build-phone">Phone:</label>
+                                            <input type="tel" id="build-phone" class="form-control" placeholder="+91 9000000000">
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <h5>Education</h5>
+                                        <div class="form-group mb-2">
+                                            <label for="build-degree">Degree:</label>
+                                            <input type="text" id="build-degree" class="form-control" placeholder="e.g. B.Tech Computer Engineering">
+                                        </div>
+                                        <div class="form-group mb-2">
+                                            <label for="build-college">College / University:</label>
+                                            <input type="text" id="build-college" class="form-control" placeholder="e.g. PICT">
+                                        </div>
+                                        <div class="form-group mb-2">
+                                            <label for="build-grad-year">Graduation Year:</label>
+                                            <input type="text" id="build-grad-year" class="form-control" placeholder="e.g. 2024">
+                                        </div>
+                                        <div class="form-group mb-2">
+                                            <label for="build-cgpa">Marks / CGPA / Percentage:</label>
+                                            <input type="text" id="build-cgpa" class="form-control" placeholder="e.g. 8.9 / 10">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card-grid mt-2">
+                                    <div>
+                                        <h5>Career &amp; Skills</h5>
+                                        <div class="form-group mb-2">
+                                            <label for="build-roles">Roles Interested In (comma separated):</label>
+                                            <input type="text" id="build-roles" class="form-control" placeholder="Data Analyst, Business Analyst">
+                                        </div>
+                                        <div class="form-group mb-2">
+                                            <label for="build-tech-skills">Technical Skills (comma separated):</label>
+                                            <input type="text" id="build-tech-skills" class="form-control" placeholder="Python, SQL, Power BI, Machine Learning">
+                                        </div>
+                                        <div class="form-group mb-2">
+                                            <label for="build-soft-skills">Soft Skills:</label>
+                                            <input type="text" id="build-soft-skills" class="form-control" placeholder="Analytical thinking, Teamwork, Communication">
+                                        </div>
+                                        <div class="form-group mb-2">
+                                            <label for="build-work-pref">Work Preference:</label>
+                                            <select id="build-work-pref" class="form-control">
+                                                <option value="Remote">Remote</option>
+                                                <option value="Hybrid" selected>Hybrid</option>
+                                                <option value="Onsite">Onsite</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <h5>Profiles &amp; Proof of Work</h5>
+                                        <div class="form-group mb-2">
+                                            <label for="build-linkedin">LinkedIn:</label>
+                                            <input type="text" id="build-linkedin" class="form-control" placeholder="linkedin.com/in/username">
+                                        </div>
+                                        <div class="form-group mb-2">
+                                            <label for="build-github">GitHub:</label>
+                                            <input type="text" id="build-github" class="form-control" placeholder="github.com/username">
+                                        </div>
+                                        <div class="form-group mb-2">
+                                            <label for="build-portfolio">Portfolio / Website:</label>
+                                            <input type="text" id="build-portfolio" class="form-control" placeholder="https://mywork.dev">
+                                        </div>
+                                        <div class="form-group mb-2">
+                                            <label for="build-kaggle">Kaggle / Other Profiles:</label>
+                                            <input type="text" id="build-kaggle" class="form-control" placeholder="kaggle.com/username">
+                                        </div>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-primary mt-3">Save Builder Profile</button>
+                                <span id="builder-save-msg" class="text-success ml-2"></span>
+                            </form>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ============================================================ -->
+                <!-- TAB 2: JOB SEARCH (consolidates all job features) -->
+                <!-- ============================================================ -->
+                <section id="tab-jobsearch" class="tab-pane" role="tabpanel" aria-labelledby="tab-btn-jobsearch">
+                    <h2>Job Search &amp; Apply</h2>
+
+                    <!-- Sub-nav tabs within Job Search -->
+                    <div class="sub-nav" role="tablist" aria-label="Job Search sections">
+                        <button class="sub-tab active" data-subtab="js-search" id="js-tab-search" role="tab" aria-selected="true">🔍 Search</button>
+                        <button class="sub-tab" data-subtab="js-matching" id="js-tab-matching" role="tab" aria-selected="false">⚖️ Matching</button>
+                        <button class="sub-tab" data-subtab="js-details" id="js-tab-details" role="tab" aria-selected="false">📋 Job Details</button>
+                        <button class="sub-tab" data-subtab="js-smart-apply" id="js-tab-apply" role="tab" aria-selected="false">📝 Smart Apply</button>
+                        <button class="sub-tab" data-subtab="js-career-assistant" id="js-tab-assistant" role="tab" aria-selected="false">💬 Smart Job Assistant</button>
+                    </div>
+
+                    <!-- SUB-TAB: Search -->
+                    <div id="js-search" class="sub-pane active" role="tabpanel">
+                        <div class="card mb-3 mt-3">
+                            <div class="form-group">
+                                <label for="job-search-input"><strong>Search Query (Voice or Text):</strong></label>
+                                <div style="display:flex; gap: 8px;">
+                                    <input type="text" id="job-search-input" class="form-control" value="Find remote data analyst internships" placeholder="e.g. Find remote data analyst internships">
+                                    <button class="btn btn-primary" onclick="performJobSearch()">Search Jobs</button>
+                                    <button class="btn btn-outline" onclick="readAloudElement('job-search-results')">🔊 Read</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card mb-3" id="related-roles-container">
+                            <h3>💡 Related Roles Suggested for You</h3>
+                            <p><small>Based on your profile skills and query, you may also excel in these related career paths:</small></p>
+                            <div id="related-roles-list">Search for a job to see related role suggestions...</div>
+                        </div>
+
+                        <div class="card" id="job-search-results-card">
+                            <h3>Matching Job Opportunities</h3>
+                            <div id="job-search-results">Click Search Jobs to load catalog...</div>
+                        </div>
+                    </div>
+
+                    <!-- SUB-TAB: Job Matching -->
+                    <div id="js-matching" class="sub-pane" role="tabpanel">
+                        <div class="alert alert-info mt-3">
+                            <strong>Non-Discrimination Principle:</strong> Disability is never used as a negative job suitability factor. Accessibility accommodations are evaluated independently.
+                        </div>
+                        <div class="btn-group mb-3">
+                            <button class="btn btn-primary" onclick="loadDemoJob()">Load Active Job</button>
+                            <button class="btn btn-accent" onclick="matchJob()">Calculate Alignment Score</button>
+                            <button class="btn btn-outline" onclick="readAloudElement('matching-output')">🔊 Read Aloud</button>
+                        </div>
+                        <div class="card">
+                            <h3>Candidate Profile vs Job Description</h3>
+                            <div id="matching-output" class="result-box">Click Calculate Alignment Score to inspect match breakdown...</div>
+                        </div>
+                    </div>
+
+                    <!-- SUB-TAB: Job Details & JD Simplification -->
+                    <div id="js-details" class="sub-pane" role="tabpanel">
+                        <div class="btn-group mb-3 mt-3">
+                            <button class="btn btn-primary" onclick="loadDemoJob()">Load Demo Job</button>
+                            <button class="btn btn-outline" onclick="simplifyJob()">Simplify Job Description</button>
+                            <button class="btn btn-outline" onclick="readAloudElement('job-output')">🔊 Read Aloud</button>
+                        </div>
+
+                        <div class="card mb-3">
+                            <h3>Difficult Word / Jargon Explainer</h3>
+                            <div style="display:flex; gap: 8px; align-items:center;">
+                                <input type="text" id="explain-word-input" class="form-control" style="max-width:300px;" value="stakeholder" placeholder="Enter difficult word...">
+                                <button class="btn btn-primary" onclick="explainDifficultWord()">Explain Word</button>
+                            </div>
+                            <div id="word-explanation-box" class="result-box mt-2" style="max-height:150px;">Enter a word like 'stakeholder' to get a plain-language meaning.</div>
+                        </div>
+
+                        <div class="card-grid">
+                            <div class="card">
+                                <h3>Original Job Posting</h3>
+                                <textarea id="job-input" rows="12" class="form-control" placeholder="Paste job description or load demo..."></textarea>
+                            </div>
+                            <div class="card">
+                                <h3>Accessible Plain-Language Overview</h3>
+                                <div id="job-output" class="result-box">Click Simplify to format into bulleted, cognitive-friendly sections...</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SUB-TAB: Smart Apply -->
+                    <div id="js-smart-apply" class="sub-pane" role="tabpanel">
+                        <div class="alert alert-info mt-3">
+                            <strong>Action Safety:</strong> LLM/Assistant → Recommendation → Validation → <strong>Explicit User Confirmation</strong> → Submission. Direct automatic submission without candidate approval is strictly blocked.
+                        </div>
+                        <div class="btn-group mb-3">
+                            <button class="btn btn-primary" onclick="loadDemoHTML()">Load Demo Application Form</button>
+                            <button class="btn btn-outline" onclick="auditAccessibility()">Audit Page Accessibility</button>
+                            <button class="btn btn-accent" onclick="mapFormFields()">Map Safe &amp; Ambiguous Fields</button>
+                        </div>
+
+                        <div id="audit-results" class="mb-3"></div>
+
+                        <div class="card mb-3">
+                            <h3>Application Question Simplification</h3>
+                            <div style="display:flex; gap:8px;">
+                                <input type="text" id="complex-question-input" class="form-control" value="Please provide a comprehensive overview of your professional experience and how it aligns with the strategic requirements of this role." placeholder="Paste complex question...">
+                                <button class="btn btn-primary" onclick="simplifyComplexQuestion()">Simplify Question</button>
+                            </div>
+                            <div id="simplified-question-output" class="result-box mt-2" style="max-height:180px;">Simplified question and 'What to Include' points will appear here.</div>
+                        </div>
+
+                        <div class="card mt-3">
+                            <h3>Application Review &amp; Confirmation Area</h3>
+                            <div id="application-review-area">Load demo and map fields to inspect mapped form inputs.</div>
+                        </div>
+                    </div>
+
+                    <!-- SUB-TAB: Smart Job Assistant (Career Chat) -->
+                    <div id="js-career-assistant" class="sub-pane" role="tabpanel">
+                        <p class="mt-3">Ask anything about jobs, skills, application questions, or career pathways. Uses Qwen3.8 27B with local grounded fallbacks.</p>
+                        <div class="card mb-3">
+                            <div class="btn-group mb-2">
+                                <button class="btn btn-outline" onclick="sendAssistantPreset('Explain this job.')">Explain this job.</button>
+                                <button class="btn btn-outline" onclick="sendAssistantPreset('What skills are required?')">What skills are required?</button>
+                                <button class="btn btn-outline" onclick="sendAssistantPreset('What does stakeholder mean?')">What does stakeholder mean?</button>
+                                <button class="btn btn-outline" onclick="sendAssistantPreset('What does this company do?')">What does this company do?</button>
+                            </div>
+                            <div style="display:flex; gap: 8px;">
+                                <input type="text" id="assistant-user-input" class="form-control" placeholder="Ask Saarthi a question...">
+                                <button class="btn btn-primary" onclick="sendAssistantQuery()">Ask</button>
+                                <button class="btn btn-outline" onclick="readAloudElement('assistant-chat-stream')">🔊 Read</button>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <h3>Conversation Stream</h3>
+                            <div id="assistant-chat-stream" class="result-box" style="min-height:200px;">
+                                <strong>Saarthi:</strong> Hello! I am your accessible career assistant. How can I help you today?
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Contextual AI Assistant Quick Floating Button & Panel -->
+                    <button type="button" class="ai-quick-btn" id="job-ai-quick-btn" onclick="toggleJobQuickAI()" title="Open Contextual AI Assistant" aria-label="Open Contextual AI Assistant">
+                        ✨ Quick AI Assistant
+                    </button>
+                    <div id="job-quick-ai-panel" class="job-quick-ai-panel" style="display:none;" role="dialog" aria-labelledby="quick-ai-title">
+                        <div class="job-quick-ai-header">
+                            <h4 id="quick-ai-title">✨ Contextual Job Assistant</h4>
+                            <button type="button" class="btn btn-outline btn-sm" onclick="toggleJobQuickAI()" aria-label="Close Assistant">✕</button>
+                        </div>
+                        <div class="job-quick-ai-body">
+                            <p><small>Ask questions about the active job without leaving this page:</small></p>
+                            <div class="btn-group mb-2" style="flex-wrap:wrap;">
+                                <button type="button" class="btn btn-outline btn-sm" onclick="askQuickJobAI('What does this company expect from me?')">Expectations</button>
+                                <button type="button" class="btn btn-outline btn-sm" onclick="askQuickJobAI('What skills am I missing for this role?')">Missing Skills</button>
+                                <button type="button" class="btn btn-outline btn-sm" onclick="askQuickJobAI('Explain stakeholder and pipeline requirements')">Explain Terms</button>
+                                <button type="button" class="btn btn-outline btn-sm" onclick="askQuickJobAI('Tell me what I should prepare')">Prep Tips</button>
+                            </div>
+                            <div style="display:flex; gap:6px;">
+                                <input type="text" id="quick-ai-input" class="form-control" placeholder="Ask about this job..." aria-label="Ask about this job">
+                                <button type="button" class="btn btn-primary btn-sm" onclick="askQuickJobAI()">Ask</button>
+                            </div>
+                            <div id="quick-ai-output" class="result-box mt-2" style="max-height:180px; font-size:0.9rem;">Ask a question to see instant guidance...</div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ============================================================ -->
+                <!-- TAB 3: AI ASSISTANT (RAG Knowledge Base) -->
+                <!-- ============================================================ -->
+                <section id="tab-ai-assistant" class="tab-pane" role="tabpanel" aria-labelledby="tab-btn-ai-assistant">
+                    <h2>AI Assistant — Accessibility Knowledge Base</h2>
+                    <p>Retrieves grounded guidance from local markdown documents using FAISS and generates answers via Qwen3.8 27B.</p>
+
+                    <div class="card mb-3">
+                        <h3>Ask the Accessibility Knowledge Assistant</h3>
+                        <p><small>Try: "What is keyboard navigation?", "How do I request accessibility accommodations?", "What is WCAG?"</small></p>
+                        <div class="form-group mb-3">
+                            <input type="text" id="rag-query-input" class="form-control" value="What is keyboard navigation?" placeholder="Ask an accessibility question...">
+                            <div class="btn-group mt-2">
+                                <button class="btn btn-primary" onclick="askRAG()">Ask RAG Assistant</button>
+                                <button class="btn btn-outline" onclick="readAloudElement('rag-output')">🔊 Read Answer</button>
+                            </div>
+                        </div>
+                        <div id="rag-output" class="result-box">Ready for question...</div>
+                    </div>
+
+                    <div class="card">
+                        <h3>Quick Question Presets</h3>
+                        <div class="btn-group" style="flex-wrap:wrap;">
+                            <button class="btn btn-outline" onclick="setRAGQuery('What is keyboard navigation?')">Keyboard Navigation</button>
+                            <button class="btn btn-outline" onclick="setRAGQuery('How to request job accommodation?')">Job Accommodations</button>
+                            <button class="btn btn-outline" onclick="setRAGQuery('What is WCAG accessibility standard?')">WCAG Standards</button>
+                            <button class="btn btn-outline" onclick="setRAGQuery('How does screen reader work?')">Screen Readers</button>
+                            <button class="btn btn-outline" onclick="setRAGQuery('What is ATS and how does it work?')">ATS Systems</button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ============================================================ -->
+                <!-- TAB 4: APPLICATION TRACKER -->
+                <!-- ============================================================ -->
+                <section id="tab-tracker" class="tab-pane" role="tabpanel" aria-labelledby="tab-btn-tracker">
+                    <h2>Application Tracker</h2>
+                    <p>Track your applications across all stages: <strong>Saved, Reviewing, Ready to Apply, Waiting for Approval, Applied, Rejected, Interview, Offer, Withdrawn</strong>.</p>
+                    <div class="btn-group mb-3">
+                        <button class="btn btn-primary" onclick="loadTrackerTable()">Refresh Applications</button>
+                        <button class="btn btn-outline" onclick="readAloudElement('tracker-table-container')">🔊 Read Aloud</button>
+                    </div>
+                    <div id="tracker-table-container">Loading applications...</div>
+                </section>
+
+                <!-- ============================================================ -->
+                <!-- TAB 5: INTERVIEW PREP -->
+                <!-- ============================================================ -->
+                <section id="tab-interview" class="tab-pane" role="tabpanel" aria-labelledby="tab-btn-interview">
+                    <h2>Accessible Interview Preparation</h2>
+                    <p>Role-specific technical and behavioral questions formatted for cognitive accessibility, with practice feedback.</p>
+                    <button class="btn btn-primary mb-3" onclick="loadInterviewQuestions()">Generate Practice Questions</button>
+                    <div id="interview-output" class="result-box">Click generate to load practice questions...</div>
+                </section>
+
+                <!-- ============================================================ -->
+                <!-- TAB 6: SETTINGS (Accessibility + Gesture Control + Dev Tools) -->
+                <!-- ============================================================ -->
+                <section id="tab-settings" class="tab-pane" role="tabpanel" aria-labelledby="tab-btn-settings">
+                    <h2>Settings</h2>
+
+                    <div class="sub-nav" role="tablist" aria-label="Settings sections">
+                        <button class="sub-tab active" data-subtab="set-accessibility" id="set-tab-acc" role="tab" aria-selected="true">♿ Accessibility</button>
+                        <button class="sub-tab" data-subtab="set-gestures" id="set-tab-gest" role="tab" aria-selected="false">✋ Gesture Control</button>
+                        <button class="sub-tab" data-subtab="set-system" id="set-tab-sys" role="tab" aria-selected="false">🔧 System</button>
+                    </div>
+
+                    <!-- SUB-TAB: Accessibility Settings -->
+                    <div id="set-accessibility" class="sub-pane active" role="tabpanel">
+                        <p class="mt-3">Explicit controls for all assistive modalities. Configure sensible defaults anytime:</p>
+                        <form id="detailed-settings-form" class="card mt-3">
+                            <div class="checkbox-grid">
+                                <label class="checkbox-label"><input type="checkbox" id="set-voice-assist"> Voice Assistance [ON/OFF]</label>
+                                <label class="checkbox-label"><input type="checkbox" id="set-tts"> Text-to-Speech [ON/OFF]</label>
+                                <label class="checkbox-label"><input type="checkbox" id="set-stt"> Speech-to-Text [ON/OFF]</label>
+                                <label class="checkbox-label"><input type="checkbox" id="set-head-gestures"> Head Gestures [ON/OFF]</label>
+                                <label class="checkbox-label"><input type="checkbox" id="set-hand-gestures"> Hand Gestures [ON/OFF]</label>
+                                <label class="checkbox-label"><input type="checkbox" id="set-keyboard-nav" checked> Keyboard Navigation [ON/OFF]</label>
+                                <label class="checkbox-label"><input type="checkbox" id="set-dyslexia"> Dyslexia Mode [ON/OFF]</label>
+                                <label class="checkbox-label"><input type="checkbox" id="set-captions" checked> Captions [ON/OFF]</label>
+                                <label class="checkbox-label"><input type="checkbox" id="set-large-text"> Large Text [ON/OFF]</label>
+                                <label class="checkbox-label"><input type="checkbox" id="set-high-contrast"> High Contrast [ON/OFF]</label>
+                                <label class="checkbox-label"><input type="checkbox" id="set-reduced-motion"> Reduced Motion [ON/OFF]</label>
+                                <label class="checkbox-label"><input type="checkbox" id="set-focus-mode"> Focus Mode [ON/OFF]</label>
+                            </div>
+                            <div class="btn-group mt-3">
+                                <button type="button" class="btn btn-primary" onclick="saveAccessibilitySettings()">Apply All Settings</button>
+                                <span id="settings-save-msg" class="text-success ml-2"></span>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- SUB-TAB: Gesture Control -->
+                    <div id="set-gestures" class="sub-pane" role="tabpanel">
+                        <div class="alert alert-info mt-3">
+                            <strong>Local Privacy Notice:</strong> MediaPipe is strictly an optional, hands-free interaction mechanism. It is NEVER used to infer or diagnose disability. All frames are computed locally in your browser. Zero biometric storage.
+                        </div>
+
+                        <div class="card mt-3">
+                            <h3>Gesture Control Center</h3>
+                            <p>Click <strong>Start Gesture Control</strong> to activate continuous camera-based gesture detection.</p>
+                            <div class="btn-group mb-3">
+                                <button class="btn btn-primary" id="start-gesture-btn" onclick="startGestureControl()">▶ Start Gesture Control</button>
+                                <button class="btn btn-outline" id="stop-gesture-btn" onclick="stopGestureControl()" style="display:none;">⏹ Stop Gesture Control</button>
+                            </div>
+                            <div id="gesture-status-bar" class="gesture-status-bar" style="display:none;">
+                                <span class="gesture-active-indicator">● ACTIVE</span>
+                                <span>Gesture: <strong id="hud-last-gesture">NONE</strong></span>
+                                <span>Command: <strong id="hud-routed-command">IDLE</strong></span>
+                                <span>Action: <strong id="hud-app-action">Waiting...</strong></span>
+                            </div>
+                        </div>
+
+                        <div class="gesture-hud mt-3" id="gesture-hud-container" style="display:none;">
+                            <div class="camera-box">
+                                <video id="webcam-preview" autoplay playsinline muted></video>
+                                <canvas id="gesture-canvas"></canvas>
+                            </div>
+                            <div style="flex: 1; min-width: 280px;">
+                                <h4>Gesture Vocabulary Reference:</h4>
+                                <ul style="margin-left: 20px; font-size: 0.95rem;">
+                                    <li><strong>Head Nod:</strong> YES / AGREE</li>
+                                    <li><strong>Head Shake:</strong> NO / DENY</li>
+                                    <li><strong>Turn Left / Right:</strong> PREVIOUS / NEXT</li>
+                                    <li><strong>Double Nod:</strong> CONFIRM</li>
+                                    <li><strong>👍 Thumbs Up:</strong> YES / AGREE</li>
+                                    <li><strong>👎 Thumbs Down:</strong> NO / DENY / CANCEL</li>
+                                    <li><strong>✋ Open Palm:</strong> STOP TTS (separate from Cancel!)</li>
+                                    <li><strong>👊 Fist:</strong> SELECT / CONFIRM</li>
+                                    <li><strong>☝️ One Finger:</strong> NEXT</li>
+                                    <li><strong>✌️ Two Fingers:</strong> PREVIOUS</li>
+                                    <li><strong>👋 Wave:</strong> HELP / ATTENTION</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div id="vision-output" class="result-box mt-2" style="display:none;">Ready for gesture interaction...</div>
+
+                        <!-- Developer/Testing Mode (hidden by default) -->
+                        <div class="card mt-3">
+                            <h3>Developer Testing Mode</h3>
+                            <p><small>Simulate specific gestures for testing without camera access.</small></p>
+                            <details>
+                                <summary class="btn btn-outline btn-sm" style="display:inline-block; cursor:pointer;">Show Developer Testing Tools</summary>
+                                <div class="btn-group mt-2" style="flex-wrap:wrap;">
+                                    <button class="btn btn-outline btn-sm" onclick="testGestureCommand('HEAD_NOD')">Test Head Nod (YES)</button>
+                                    <button class="btn btn-outline btn-sm" onclick="testGestureCommand('HEAD_SHAKE')">Test Head Shake (NO)</button>
+                                    <button class="btn btn-outline btn-sm" onclick="testGestureCommand('THUMBS_UP')">Test Thumbs Up (APPROVE)</button>
+                                    <button class="btn btn-outline btn-sm" onclick="testGestureCommand('THUMBS_DOWN')">Test Thumbs Down (CANCEL)</button>
+                                    <button class="btn btn-danger btn-sm" onclick="testGestureCommand('OPEN_PALM')">Test Open Palm (STOP TTS)</button>
+                                </div>
+                                <div id="gesture-test-output" class="result-box mt-2" style="max-height:180px;">Test output will appear here...</div>
+                            </details>
+                        </div>
+                    </div>
+
+                    <!-- SUB-TAB: System -->
+                    <div id="set-system" class="sub-pane" role="tabpanel">
+                        <div class="card mt-3">
+                            <h3>System Configuration</h3>
+                            <p><strong>Primary Model:</strong> <span class="badge badge-success">qwen/qwen3.8-27b:free</span></p>
+                            <p><strong>Inference Host:</strong> OpenRouter Server-side API</p>
+                            <p><strong>Embeddings:</strong> all-MiniLM-L6-v2 (Local)</p>
+                            <p><strong>Gesture Engine:</strong> MediaPipe Face Mesh &amp; Hands</p>
+                            <p><strong>Privacy:</strong> Local processing, zero biometric storage</p>
+                            <button class="btn btn-primary mt-2" onclick="testConnection()">Verify OpenRouter / Model</button>
+                            <div id="conn-result" class="status-box mt-2">Ready</div>
+                        </div>
+
+                        <div class="card mt-3">
+                            <h3>Quick Workflow Demo</h3>
+                            <p>Demonstrates full workflow: onboarding, resume parsing, job search, semantic matching, JD simplification, smart apply with approval safeguard, and tracking:</p>
+                            <button class="btn btn-accent" onclick="runAutomatedDemo()">🚀 Run Full Hackathon Demo</button>
+                            <div id="demo-log" class="log-stream mt-2" aria-live="polite">Click to start demo...</div>
+                        </div>
+
+                        <div class="card mt-3">
+                            <h3>Onboarding</h3>
+                            <p>Return to the accessibility onboarding flow to update your preferences.</p>
+                            <button class="btn btn-outline" onclick="restartOnboarding()">♿ Update Accessibility Preferences</button>
+                        </div>
+                    </div>
+
+                </section>
+
+            </main>
+        </div><!-- end app-layout -->
+    </div><!-- end main-app -->
+
+    <!-- Explicit Action Approval Modal -->
+    <div id="approval-modal" class="modal-backdrop" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="approval-modal-title">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <h3 id="approval-modal-title">Action Confirmation Required</h3>
+                <button type="button" class="btn btn-outline" onclick="handleActionApproval(false)" aria-label="Cancel action">✕</button>
+            </div>
+            <p id="approval-modal-prompt" style="font-size: 1.15rem; font-weight: 600;">
+                "Do you want to submit this application?"
+            </p>
+            <p><small>You can respond via Voice ("Yes" / "No"), Head Gesture (Nod / Shake), Hand Gesture (Thumbs Up / Thumbs Down), or the buttons below.</small></p>
+            <div class="btn-group mt-3" style="display: flex; gap: 12px;">
+                <button type="button" class="btn btn-accent" style="flex:1; padding: 14px;" onclick="handleActionApproval(true)">
+                    ✓ YES / APPROVE
+                </button>
+                <button type="button" class="btn btn-outline" style="flex:1; padding: 14px;" onclick="handleActionApproval(false)">
+                    ✗ NO / DENY
+                </button>
+                <button type="button" class="btn btn-danger" style="padding: 14px;" onclick="stopAllActions(); closeApprovalModal();">
+                    🛑 STOP
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>

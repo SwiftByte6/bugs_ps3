@@ -1,0 +1,130 @@
+[
+  {
+    "id": "job_001",
+    "title": "Junior Data Analyst / ML Associate",
+    "company": "CogniCorp Technologies",
+    "location": "Bengaluru, Karnataka, India",
+    "work_mode": "Hybrid",
+    "salary": "Rs. 6,00,000 - 9,00,000 per annum",
+    "employment_type": "Full-time",
+    "required_skills": ["Python", "SQL", "Machine Learning", "Power BI", "Data Analysis"],
+    "preferred_skills": ["Tableau", "Docker", "Git", "FastAPI"],
+    "experience_required": "0-2 years (internship accepted)",
+    "education": "B.Tech / B.E. / B.Sc in Computer Science or related field",
+    "responsibilities": [
+      "Extract, clean, and analyze datasets from databases and APIs",
+      "Build automated reporting workflows using Python and SQL",
+      "Create interactive dashboards in Power BI",
+      "Assist in feature engineering and ML model evaluation"
+    ],
+    "accessibility_info": "Wheelchair accessible campus, screen reader friendly portal, flexible hybrid accommodation.",
+    "physical_requirements": "Desk-based work, ergonomic workstations available.",
+    "travel_requirements": "None"
+  },
+  {
+    "id": "job_002",
+    "title": "Business Analyst - Insights & Reporting",
+    "company": "FinServe Global",
+    "location": "Mumbai, Maharashtra, India",
+    "work_mode": "Remote",
+    "salary": "Rs. 7,00,000 - 10,50,000 per annum",
+    "employment_type": "Full-time",
+    "required_skills": ["SQL", "Power BI", "Data Analysis", "Communication", "Problem Solving"],
+    "preferred_skills": ["Python", "Tableau", "Financial Modeling"],
+    "experience_required": "1-3 years",
+    "education": "Bachelor's degree in Engineering, Commerce, or Statistics",
+    "responsibilities": [
+      "Translate business questions into data requirements",
+      "Develop executive dashboards in Power BI",
+      "Perform exploratory SQL analysis to identify revenue trends",
+      "Present actionable insights to stakeholders"
+    ],
+    "accessibility_info": "100% remote role. Flexible work hours, digital accessibility software licenses provided.",
+    "physical_requirements": "None (Remote desk role).",
+    "travel_requirements": "None"
+  },
+  {
+    "id": "job_003",
+    "title": "BI & Reporting Analyst",
+    "company": "HealthMetrics Inc",
+    "location": "Pune, Maharashtra, India",
+    "work_mode": "Hybrid",
+    "salary": "Rs. 5,50,000 - 8,00,000 per annum",
+    "employment_type": "Full-time",
+    "required_skills": ["SQL", "Power BI", "Tableau", "Python", "Data Analytics"],
+    "preferred_skills": ["Healthcare Analytics", "ETL", "Excel"],
+    "experience_required": "0-2 years",
+    "education": "Degree in Computer Science, Health Informatics, or related field",
+    "responsibilities": [
+      "Maintain automated daily and weekly healthcare metrics dashboards",
+      "Write optimized SQL queries for relational data warehouses",
+      "Collaborate with clinical teams to clarify analytical needs"
+    ],
+    "accessibility_info": "Wheelchair accessible facility with designated accessible parking and elevators.",
+    "physical_requirements": "Office computer work.",
+    "travel_requirements": "None"
+  },
+  {
+    "id": "job_004",
+    "title": "Product Analyst",
+    "company": "UrbanTech Labs",
+    "location": "Remote, India",
+    "work_mode": "Remote",
+    "salary": "Rs. 8,00,000 - 12,00,000 per annum",
+    "employment_type": "Full-time",
+    "required_skills": ["Python", "SQL", "Data Analytics", "Machine Learning", "A/B Testing"],
+    "preferred_skills": ["Pandas", "Scikit-Learn", "Git"],
+    "experience_required": "1-3 years",
+    "education": "Bachelor's or Master's degree in quantitative field",
+    "responsibilities": [
+      "Measure feature adoption, conversion funnels, and user engagement",
+      "Run statistical experiments and hypothesis testing",
+      "Build predictive models for user retention using Python"
+    ],
+    "accessibility_info": "Full remote setup allowance, asynchronous team communication, assistive tool stipends.",
+    "physical_requirements": "None.",
+    "travel_requirements": "None"
+  },
+  {
+    "id": "job_005",
+    "title": "Junior Data Scientist",
+    "company": "NeuralWave AI",
+    "location": "Hyderabad, Telangana, India",
+    "work_mode": "Hybrid",
+    "salary": "Rs. 8,50,000 - 13,00,000 per annum",
+    "employment_type": "Full-time",
+    "required_skills": ["Python", "Machine Learning", "Pandas", "NumPy", "SQL", "Scikit-Learn"],
+    "preferred_skills": ["PyTorch", "NLP", "Docker", "FastAPI"],
+    "experience_required": "0-2 years",
+    "education": "B.Tech/M.Tech in Computer Science, Artificial Intelligence, or Data Science",
+    "responsibilities": [
+      "Train and benchmark machine learning models on structured datasets",
+      "Implement data preprocessing and feature transformation pipelines",
+      "Collaborate with senior scientists on algorithm experiments"
+    ],
+    "accessibility_info": "Accessibility information was not provided in this job posting.",
+    "physical_requirements": "Sedentary workstation work.",
+    "travel_requirements": "None"
+  },
+  {
+    "id": "job_006",
+    "title": "Digital Accessibility QA Analyst",
+    "company": "InclusionFirst Tech",
+    "location": "Remote, India",
+    "work_mode": "Remote",
+    "salary": "Rs. 6,50,000 - 9,50,000 per annum",
+    "employment_type": "Full-time",
+    "required_skills": ["Accessibility Testing", "Screen Readers", "WCAG", "HTML", "Communication"],
+    "preferred_skills": ["Python", "JavaScript", "Automated Testing"],
+    "experience_required": "0-3 years (lived experience with assistive tech warmly welcomed)",
+    "education": "Any Bachelor's degree or equivalent practical experience",
+    "responsibilities": [
+      "Audit web and mobile applications against WCAG 2.1 AA standards",
+      "Perform assistive technology testing with NVDA, JAWS, and VoiceOver",
+      "Provide actionable accessibility remediation advice to engineering"
+    ],
+    "accessibility_info": "Disability-inclusive employer. Assistive hardware/software fully provided; captioning and flexible pacing standard.",
+    "physical_requirements": "None.",
+    "travel_requirements": "None"
+  }
+]

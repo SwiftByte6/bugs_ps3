@@ -1,0 +1,75 @@
+body {
+    width: 320px;
+    font-family: system-ui, sans-serif;
+    margin: 0;
+    padding: 14px;
+    background: #f8fafc;
+    color: #0f172a;
+}
+
+.ext-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #e2e8f0;
+    padding-bottom: 8px;
+    margin-bottom: 12px;
+}
+
+.ext-header h2 {
+    font-size: 1.1rem;
+    margin: 0;
+    color: #2563eb;
+}
+
+.badge {
+    background: #dbeafe;
+    color: #1e40af;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: bold;
+}
+
+.ext-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.btn {
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    text-align: left;
+}
+
+.btn-primary {
+    background: #2563eb;
+    color: #ffffff;
+}
+
+.btn-accent {
+    background: #059669;
+    color: #ffffff;
+}
+
+.btn-outline {
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    color: #0f172a;
+}
+
+.status-panel {
+    margin-top: 12px;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    padding: 10px;
+    font-size: 0.8rem;
+    max-height: 180px;
+    overflow-y: auto;
+}

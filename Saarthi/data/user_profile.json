@@ -1,0 +1,135 @@
+{
+  "accessibility": {
+    "screen_reader": true,
+    "voice_navigation": true,
+    "keyboard_navigation": true,
+    "captions": true,
+    "text_first": true,
+    "text_to_speech": true,
+    "speech_to_text": true,
+    "large_text": true,
+    "high_contrast": true,
+    "reduced_motion": false,
+    "dyslexia_mode": true,
+    "simplified_language": true,
+    "eye_control": false,
+    "blink_control": false,
+    "preferred_language": "English",
+    "accommodation_disclosure": "ask_every_time",
+    "declared_needs": [
+      "Blind / Low Vision",
+      "Dyslexia"
+    ],
+    "additional_requirements": "",
+    "head_gestures": true,
+    "hand_gestures": false,
+    "focus_mode": true
+  },
+  "resume_profile": {
+    "name": "Test User",
+    "email": "test@example.com",
+    "phone": "+91 9000000000",
+    "location": "Pune, India",
+    "education": [
+      {
+        "degree": "B.Tech Computer Engineering",
+        "institution": "Pune Institute of Computer Technology",
+        "marks_cgpa": "8.8/10"
+      }
+    ],
+    "skills": {
+      "programming_languages": [
+        "Python",
+        "SQL",
+        "Javascript"
+      ],
+      "frameworks": [
+        "Fastapi",
+        "Pandas",
+        "Numpy",
+        "Scikit-Learn",
+        "Pytorch"
+      ],
+      "tools": [
+        "Power Bi",
+        "Docker",
+        "Faiss"
+      ],
+      "domains": [
+        "Machine Learning",
+        "Data Analytics"
+      ],
+      "soft_skills": [],
+      "all_skills": [
+        "Python",
+        "SQL",
+        "Machine Learning",
+        "Power Bi",
+        "Javascript",
+        "Fastapi",
+        "Pandas",
+        "Numpy",
+        "Scikit-Learn",
+        "Pytorch",
+        "Docker",
+        "GIT",
+        "Faiss",
+        "Data Analytics"
+      ]
+    },
+    "experience": [
+      {
+        "role": "Data Analyst Intern",
+        "company": "TechNova Solutions",
+        "duration": "Jan 2024 - Jun 2024",
+        "description": "Built automated reporting pipelines using Python and SQL."
+      }
+    ],
+    "projects": [
+      {
+        "title": "Data Analytics Dashboard",
+        "description": "Interactive dashboard using Python, Streamlit, and Power BI.",
+        "technologies": [
+          "Python",
+          "Streamlit",
+          "Power BI"
+        ]
+      },
+      {
+        "title": "Machine Learning Classification Project",
+        "description": "Customer churn prediction models with 92% accuracy.",
+        "technologies": [
+          "Python",
+          "Scikit-Learn"
+        ]
+      }
+    ],
+    "linkedin": "linkedin.com/in/testuser",
+    "github": "github.com/testuser",
+    "portfolio": "example.com",
+    "is_verified": false,
+    "certifications": [
+      "Python for Data Science and Machine Learning Bootcamp",
+      "Microsoft Power BI Data Analyst Associate"
+    ],
+    "achievements": [],
+    "raw_text_length": 1628,
+    "marks_cgpa": "8.8/10",
+    "internships": [
+      {
+        "role": "Data Analyst Intern",
+        "company": "TechNova Solutions",
+        "duration": "Jan 2024 - Jun 2024",
+        "description": "Built automated reporting pipelines using Python and SQL."
+      }
+    ],
+    "roles_interested_in": [
+      "Data Analyst",
+      "Business Analyst",
+      "Junior Data Scientist"
+    ],
+    "kaggle": "",
+    "other_proof_of_work": "",
+    "work_mode": "Hybrid"
+  }
+}

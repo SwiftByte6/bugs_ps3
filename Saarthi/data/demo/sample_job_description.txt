@@ -1,0 +1,42 @@
+Job Title: Junior Data Analyst / ML Associate
+Company: CogniCorp Technologies
+Location: Bengaluru, Karnataka, India
+Work Mode: Hybrid (2 days in office / 3 days remote)
+Salary: Rs. 6,00,000 - 9,00,000 per annum
+Employment Type: Full-time
+
+Job Overview:
+CogniCorp Technologies is seeking an enthusiastic Junior Data Analyst to join our Data Science and Intelligence team. You will collaborate with data scientists and business stakeholders to uncover insights, develop automated analytics pipelines, and support machine learning model deployment.
+
+What You Will Do / Responsibilities:
+- Extract, clean, and analyze structured and semi-structured datasets from relational databases and APIs.
+- Build automated ETL workflows and reports using Python and SQL.
+- Create engaging, accessible data visualizations and executive dashboards using Power BI or Tableau.
+- Assist senior machine learning engineers in feature engineering, model training, and performance tracking.
+- Document data definitions, analytical findings, and user requirements clearly for cross-functional teams.
+
+Required Skills:
+- Strong proficiency in Python (Pandas, NumPy) and SQL.
+- Practical experience with Machine Learning fundamentals and classification algorithms.
+- Experience building dashboards using Power BI.
+- Solid understanding of data preprocessing, exploratory data analysis, and statistical evaluation.
+- Excellent communication and problem-solving skills.
+
+Preferred Skills:
+- Experience with Tableau, Docker, or Git.
+- Exposure to FastAPI or RESTful microservices.
+- Familiarity with cloud data platforms (AWS / Azure / GCP).
+
+Education:
+- Bachelor degree (B.Tech, B.E., B.Sc, or BCA) in Computer Science, Data Science, Information Technology, or related discipline.
+
+Experience:
+- 0 to 2 years of relevant experience or internship in Data Analytics or Machine Learning.
+
+Benefits:
+- Flexible work hours and ergonomic home-office stipend.
+- Comprehensive health insurance including mental wellness and disability accommodations.
+- Annual learning and certification allowance.
+
+Accessibility & Inclusion:
+CogniCorp is an Equal Opportunity and Disability-Inclusive Employer. We provide reasonable accommodations during the interview process and on the job, including screen reader support, assistive software, accessible premises, and flexible communication formats.

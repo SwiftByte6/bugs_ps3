@@ -1,0 +1,29 @@
+{
+  "manifest_version": 3,
+  "name": "Saarthi - Accessible Job Assistant",
+  "version": "1.0.0",
+  "description": "Accessible job application assistant for candidates with disabilities. Inspects forms, detects accessibility barriers, and connects with local FastAPI backend.",
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "storage"
+  ],
+  "host_permissions": [
+    "http://127.0.0.1/*",
+    "http://localhost/*"
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Saarthi Accessible Assistant"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}
