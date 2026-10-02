@@ -73,7 +73,11 @@ export default function AuthForm({ mode = "login" }) {
         }
       }
     } catch (err) {
-      console.error("Auth submit error:", err);
+      if (err?.message?.toLowerCase().includes("rate limit")) {
+        console.warn("Auth rate limit notice:", err.message);
+      } else {
+        console.error("Auth submit error:", err);
+      }
       setError(
         err?.message || "Authentication failed. Please check your credentials and try again."
       );
@@ -88,10 +92,25 @@ export default function AuthForm({ mode = "login" }) {
       {error && (
         <div
           role="alert"
-          className="p-3.5 rounded-xl bg-red-50 border border-red-200 text-red-800 text-xs font-semibold flex items-start gap-2.5 animate-in fade-in"
+          className="p-3.5 rounded-xl bg-red-50 border border-red-200 text-red-800 text-xs font-semibold flex flex-col gap-2 animate-in fade-in"
         >
-          <AlertCircle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
-          <span>{error}</span>
+          <div className="flex items-start gap-2.5">
+            <AlertCircle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
+            <span>{error}</span>
+          </div>
+          {isSignup && error.includes("Sign In") && (
+            <div className="pl-6 pt-1">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => router.push("/login")}
+                className="text-xs font-bold border-red-300 text-red-700 hover:bg-red-100"
+              >
+                Go to Sign In →
+              </Button>
+            </div>
+          )}
         </div>
       )}
 
