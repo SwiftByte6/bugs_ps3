@@ -1,14 +1,16 @@
 "use client";
 
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 import Card, { CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
 import FormInput from "@/components/ui/FormInput";
 import useUser from "@/hooks/useUser";
-import { Settings, Shield, Bell, CheckCircle2 } from "lucide-react";
+import { Settings, Shield, Bell, CheckCircle2, LogOut } from "lucide-react";
 
 export default function SettingsPage() {
-  const { user } = useUser();
+  const router = useRouter();
+  const { user, logout } = useUser();
   const [email, setEmail] = useState(user?.email || "rohit.sharma@example.com");
   const [notifications, setNotifications] = useState(true);
   const [saved, setSaved] = useState(false);
@@ -17,6 +19,11 @@ export default function SettingsPage() {
     e.preventDefault();
     setSaved(true);
     setTimeout(() => setSaved(false), 3000);
+  };
+
+  const handleLogout = async () => {
+    await logout();
+    router.push("/login");
   };
 
   return (
@@ -84,7 +91,17 @@ export default function SettingsPage() {
               />
             </div>
 
-            <div className="flex justify-end">
+            <div className="flex items-center justify-between pt-4 border-t border-[#E2E2E5]">
+              <Button
+                type="button"
+                variant="danger"
+                onClick={handleLogout}
+                icon={LogOut}
+                className="bg-[#FEF2F2] hover:bg-[#FEE2E2] text-[#991B1B] border border-[#FCA5A5] font-bold text-xs"
+              >
+                Sign Out of Saarthi
+              </Button>
+
               <Button
                 type="submit"
                 variant="primary"

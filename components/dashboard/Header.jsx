@@ -1,12 +1,14 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Search, Bell, User, Server } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Search, Bell, User, Server, LogOut } from "lucide-react";
 import useUser from "@/hooks/useUser";
 import { checkBackendHealth } from "@/lib/services/healthService";
 
 export default function Header({ title = "Dashboard" }) {
-  const { user } = useUser();
+  const router = useRouter();
+  const { user, logout } = useUser();
   const userName = user?.user_metadata?.full_name || user?.full_name || "Rohit Sharma";
 
   const [backendStatus, setBackendStatus] = useState("checking"); // checking | connected | disconnected
@@ -29,6 +31,11 @@ export default function Header({ title = "Dashboard" }) {
     };
   }, []);
 
+  const handleLogout = async () => {
+    await logout();
+    router.push("/login");
+  };
+
   return (
     <header className="h-20 bg-white border-b border-[#E2E2E5] px-6 lg:px-8 flex items-center justify-between sticky top-0 z-30 select-none">
       {/* Search Field */}
@@ -41,7 +48,7 @@ export default function Header({ title = "Dashboard" }) {
         />
       </div>
 
-      {/* User Actions & Backend Connection Status */}
+      {/* User Actions, Backend Status & Logout */}
       <div className="flex items-center gap-4">
         {/* Backend Health Badge */}
         <div
@@ -75,6 +82,7 @@ export default function Header({ title = "Dashboard" }) {
           <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-[#40189D]" />
         </button>
 
+        {/* User Info */}
         <div className="flex items-center gap-3 pl-2 border-l border-[#E2E2E5]">
           <div className="w-9 h-9 rounded-xl bg-[#F1EBFF] text-[#40189D] font-bold flex items-center justify-center border border-purple-200">
             <User className="w-5 h-5" />
@@ -88,6 +96,17 @@ export default function Header({ title = "Dashboard" }) {
             </span>
           </div>
         </div>
+
+        {/* Header Sign Out / Logout Button */}
+        <button
+          onClick={handleLogout}
+          aria-label="Sign Out"
+          title="Sign out of your account"
+          className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[#FEF2F2] hover:bg-[#FEE2E2] text-[#991B1B] border border-[#FCA5A5] text-xs font-bold transition-colors"
+        >
+          <LogOut className="w-4 h-4 text-[#991B1B]" />
+          <span className="hidden sm:inline">Sign Out</span>
+        </button>
       </div>
     </header>
   );

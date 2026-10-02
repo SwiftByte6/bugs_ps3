@@ -2,7 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   LayoutDashboard,
   Briefcase,
@@ -17,6 +17,7 @@ import useUser from "@/hooks/useUser";
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const router = useRouter();
   const { logout } = useUser();
 
   const navItems = [
@@ -27,6 +28,11 @@ export default function Sidebar() {
     { name: "Extension", href: "/dashboard/extension", icon: Puzzle },
     { name: "Settings", href: "/dashboard/settings", icon: Settings },
   ];
+
+  const handleLogout = async () => {
+    await logout();
+    router.push("/login");
+  };
 
   return (
     <aside
@@ -81,7 +87,8 @@ export default function Sidebar() {
       {/* Footer Actions */}
       <div className="pt-6 border-t border-purple-500/40 flex flex-col gap-3">
         <button
-          onClick={logout}
+          onClick={handleLogout}
+          aria-label="Sign Out of Saarthi Account"
           className="flex items-center gap-3 px-4 py-2.5 rounded-xl font-semibold text-xs text-purple-200 hover:bg-white/10 hover:text-white transition-colors focus-visible:outline-2 focus-visible:outline-white"
         >
           <LogOut className="w-4 h-4" />
