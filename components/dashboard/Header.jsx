@@ -9,7 +9,7 @@ import { checkBackendHealth } from "@/lib/services/healthService";
 export default function Header({ title = "Dashboard" }) {
   const router = useRouter();
   const { user, logout } = useUser();
-  const userName = user?.user_metadata?.full_name || user?.full_name || "Rohit Sharma";
+  const userName = user?.full_name || user?.user_metadata?.full_name || user?.email?.split("@")[0] || "Candidate";
 
   const [backendStatus, setBackendStatus] = useState("checking"); // checking | connected | disconnected
 

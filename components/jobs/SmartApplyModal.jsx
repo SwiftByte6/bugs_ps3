@@ -124,12 +124,12 @@ export default function SmartApplyModal({ job, isOpen, onClose, onSuccess }) {
 
       // 4. Run Field Mapping
       const candidateProfile = profile || {
-        full_name: "Rohit Sharma",
-        email: "rohit.sharma@example.com",
+        full_name: user?.full_name || user?.user_metadata?.full_name || "Job Candidate",
+        email: user?.email || "candidate@example.com",
         phone: "+91 98765 43210",
         location: "Mumbai, India",
-        linkedin_url: "https://linkedin.com/in/rohit-sharma-dev",
-        resume_url: "Rohit_Sharma_Resume.pdf",
+        linkedin_url: "https://linkedin.com/in/candidate",
+        resume_url: "Resume.pdf",
       };
 
       const mappedRes = await mapDomFields(domSnapshot, candidateProfile);

@@ -6,10 +6,10 @@ import Badge from "../ui/Badge";
 import { User, MapPin, Mail, Phone } from "lucide-react";
 
 export default function ProfileHeader({ profile, completenessPercentage }) {
-  const name = profile?.full_name || "Rohit Sharma";
-  const email = profile?.email || "rohit.sharma@example.com";
-  const phone = profile?.phone || "+91 98765 43210";
-  const location = profile?.location || "Mumbai, India";
+  const name = profile?.full_name || "Job Candidate";
+  const email = profile?.email || "candidate@example.com";
+  const phone = profile?.phone || "Not provided";
+  const location = profile?.location || "Not provided";
 
   return (
     <Card className="mb-6 bg-white border-[#E2E2E5]">

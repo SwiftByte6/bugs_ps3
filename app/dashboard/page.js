@@ -34,7 +34,7 @@ export default function DashboardOverviewPage() {
   const [selectedJob, setSelectedJob] = useState(null);
   const [toastMessage, setToastMessage] = useState("");
 
-  const name = user?.user_metadata?.full_name || profile?.full_name || "Rohit Sharma";
+  const name = profile?.full_name || user?.full_name || user?.user_metadata?.full_name || user?.email?.split("@")[0] || "Candidate";
 
   useEffect(() => {
     async function loadRecommended() {
