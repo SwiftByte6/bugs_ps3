@@ -57,14 +57,30 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         const domData = extractPageDOM();
         sendResponse({ status: "success", data: domData });
     } else if (request.action === "FILL_FIELDS") {
-        // Safe filling into actual DOM inputs
         const mappings = request.mappings || [];
         let filledCount = 0;
+
         mappings.forEach(m => {
-            if (m.is_safe && m.suggested_value) {
-                const el = document.querySelector(`[name="${m.field_name}"], #${m.field_id}`);
+            const isSafe = m.is_safe === true || m.safe === true;
+            const val = m.suggested_value || m.value;
+
+            // STRICT SAFETY ENFORCEMENT: Only populate if marked safe by backend
+            if (isSafe && val) {
+                let el = null;
+                if (m.field_id) el = document.getElementById(m.field_id);
+                if (!el && m.field_name) el = document.querySelector(`[name="${m.field_name}"]`);
+                if (!el && m.label) {
+                    const allInputs = Array.from(document.querySelectorAll("input, textarea, select"));
+                    el = allInputs.find(i => {
+                        const lbl = i.getAttribute("aria-label") || i.placeholder || "";
+                        return lbl.toLowerCase().includes(m.label.toLowerCase());
+                    });
+                }
+
                 if (el) {
-                    el.value = m.suggested_value;
+                    el.value = val;
+                    el.style.border = "2px solid #40189D";
+                    el.style.backgroundColor = "#F1EBFF";
                     el.dispatchEvent(new Event("input", { bubbles: true }));
                     el.dispatchEvent(new Event("change", { bubbles: true }));
                     filledCount++;

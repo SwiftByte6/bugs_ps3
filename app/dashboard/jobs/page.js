@@ -2,9 +2,9 @@
 
 import React, { useState, useEffect } from "react";
 import { getJobs } from "@/lib/services/jobService";
-import useApplications from "@/hooks/useApplications";
 import JobCard from "@/components/jobs/JobCard";
 import JobDetailsModal from "@/components/jobs/JobDetailsModal";
+import SmartApplyModal from "@/components/jobs/SmartApplyModal";
 import Badge from "@/components/ui/Badge";
 import Card, { CardContent } from "@/components/ui/Card";
 import { Search, Sparkles, CheckCircle2 } from "lucide-react";
@@ -15,9 +15,8 @@ export default function JobsPage() {
   const [activeFilter, setActiveFilter] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedJob, setSelectedJob] = useState(null);
+  const [smartApplyJob, setSmartApplyJob] = useState(null);
   const [appliedToast, setAppliedToast] = useState("");
-
-  const { addApplication } = useApplications();
 
   const filterOptions = ["All", "Remote", "React", "Next.js", "JavaScript", "Tailwind CSS"];
 
@@ -34,18 +33,14 @@ export default function JobsPage() {
     loadJobs();
   }, [activeFilter]);
 
-  const handleApplyWithSaarthi = async (job) => {
-    await addApplication({
-      company: job.company,
-      role: job.title,
-      platform: "Saarthi Assisted Direct",
-      job_url: "#",
-      status: "Applied",
-      notes: `Applied with 1-click Saarthi companion. ${job.match_percentage}% profile match score.`,
-    });
+  const handleOpenSmartApply = (job) => {
+    setSelectedJob(null);
+    setSmartApplyJob(job);
+  };
 
-    setAppliedToast(`✓ Applied to ${job.title} at ${job.company}! Position added to application tracker.`);
-    setTimeout(() => setAppliedToast(""), 4500);
+  const handleSmartApplySuccess = (job) => {
+    setAppliedToast(`✓ Smart Apply completed for ${job.title} at ${job.company}! Added to application tracker.`);
+    setTimeout(() => setAppliedToast(""), 5000);
   };
 
   const filteredJobs = jobs.filter(
@@ -72,13 +67,13 @@ export default function JobsPage() {
       <div>
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#F1EBFF] text-[#40189D] text-xs font-semibold mb-2">
           <Sparkles className="w-3.5 h-3.5" />
-          <span>Smart Match Discovery</span>
+          <span>Smart Match & Smart Apply</span>
         </div>
         <h1 className="text-2xl sm:text-3xl font-bold text-[#222222] tracking-tight">
           Recommended Job Opportunities
         </h1>
         <p className="text-sm text-[#6F6F73] mt-1">
-          Positions tailored to your professional skills and accessibility requirements.
+          Positions tailored to your professional skills and accessibility requirements. Use Saarthi Smart Apply for controlled form mapping.
         </p>
       </div>
 
@@ -96,7 +91,7 @@ export default function JobsPage() {
             />
           </div>
 
-          {/* Skill Filter Pills (Section 7 of design.md) */}
+          {/* Skill Filter Pills */}
           <div className="flex flex-wrap items-center gap-1.5 w-full md:w-auto">
             {filterOptions.map((opt) => (
               <Badge
@@ -126,7 +121,7 @@ export default function JobsPage() {
               key={job.id}
               job={job}
               onViewDetails={(selected) => setSelectedJob(selected)}
-              onApply={handleApplyWithSaarthi}
+              onApply={handleOpenSmartApply}
             />
           ))}
         </div>
@@ -143,7 +138,15 @@ export default function JobsPage() {
         job={selectedJob}
         isOpen={Boolean(selectedJob)}
         onClose={() => setSelectedJob(null)}
-        onApply={handleApplyWithSaarthi}
+        onApply={handleOpenSmartApply}
+      />
+
+      {/* Saarthi Smart Apply Controlled Flow Modal */}
+      <SmartApplyModal
+        job={smartApplyJob}
+        isOpen={Boolean(smartApplyJob)}
+        onClose={() => setSmartApplyJob(null)}
+        onSuccess={handleSmartApplySuccess}
       />
     </div>
   );

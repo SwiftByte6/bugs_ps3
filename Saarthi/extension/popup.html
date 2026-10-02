@@ -7,9 +7,14 @@
 </head>
 <body>
     <header class="ext-header">
-        <h2>Saarthi Assistant</h2>
-        <span class="badge">Local AI</span>
+        <h2>Saarthi Companion</h2>
+        <span id="backend-badge" class="badge">Checking...</span>
     </header>
+
+    <div class="status-bar">
+        <span><span id="conn-dot" class="dot dot-gray"></span><span id="conn-text">Connecting...</span></span>
+        <span id="profile-text" style="color: #6F6F73;">Profile Ready</span>
+    </div>
 
     <div class="ext-actions">
         <button id="btn-scan" class="btn btn-primary">🔍 Scan Active Page</button>
@@ -18,7 +23,9 @@
         <button id="btn-open-dashboard" class="btn btn-outline">🌐 Open Full Dashboard</button>
     </div>
 
-    <div id="ext-status" class="status-panel">Click Scan to inspect the current job application.</div>
+    <div id="ext-status" class="status-panel">
+        Click <strong>Scan Active Page</strong> to inspect job application form controls.
+    </div>
 
     <script src="popup.js"></script>
 </body>

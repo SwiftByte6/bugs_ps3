@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import Card, { CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
 import Badge from "@/components/ui/Badge";
+import SmartApplyModal from "@/components/jobs/SmartApplyModal";
 import {
   Puzzle,
   CheckCircle2,
@@ -12,14 +13,21 @@ import {
   Sparkles,
   Eye,
   Volume2,
-  FileCheck2,
-  ShieldCheck,
 } from "lucide-react";
 
 export default function ExtensionPage() {
   const [isConnected, setIsConnected] = useState(true);
   const [syncing, setSyncing] = useState(false);
   const [syncedMessage, setSyncedMessage] = useState("");
+  const [smartApplyJob, setSmartApplyJob] = useState(null);
+
+  const demoJob = {
+    id: "job_demo_ext",
+    company: "XYZ Technologies",
+    title: "Senior Frontend Developer (Accessibility Focus)",
+    location: "Remote",
+    job_url: "https://demo.saarthi.ai/apply",
+  };
 
   const handleSyncNow = () => {
     setSyncing(true);
@@ -80,7 +88,7 @@ export default function ExtensionPage() {
                 The Saarthi Chrome extension injects accessible overlays, text simplification tools, keyboard shortcuts, and auto-fill buttons into external job forms.
               </p>
 
-              {/* Sync Checklist (Section 29 of design.md) */}
+              {/* Sync Checklist */}
               <div className="p-4 rounded-xl bg-[#F5F5F6] border border-[#E2E2E5] space-y-2.5">
                 <div className="text-xs font-bold text-[#222222] mb-1">
                   Active Sync Checklist:
@@ -122,7 +130,7 @@ export default function ExtensionPage() {
             </CardFooter>
           </Card>
 
-          {/* Toggle Connection Mock State for testing */}
+          {/* Toggle Connection Mock State */}
           <Card className="bg-white border-[#E2E2E5] p-4 flex items-center justify-between text-xs">
             <span className="font-semibold text-[#6F6F73]">
               Simulate Chrome Extension Connection State:
@@ -137,7 +145,7 @@ export default function ExtensionPage() {
           </Card>
         </div>
 
-        {/* Right Column: Simulated Extension Popup Visual (Section 29 of design.md) */}
+        {/* Right Column: Simulated Extension Popup Visual */}
         <div className="lg:col-span-5">
           <Card className="p-6 bg-white border-[#E2E2E5] shadow-lg">
             <div className="text-xs font-bold text-[#6F6F73] uppercase tracking-wider mb-3">
@@ -158,9 +166,9 @@ export default function ExtensionPage() {
 
               <div>
                 <h4 className="text-sm font-bold text-[#222222]">
-                  Senior Frontend Developer
+                  {demoJob.title}
                 </h4>
-                <p className="text-xs text-[#6F6F73]">XYZ Technologies • LinkedIn</p>
+                <p className="text-xs text-[#6F6F73]">{demoJob.company} • Demo Environment</p>
               </div>
 
               <div className="p-2.5 rounded-xl bg-white border border-[#E2E2E5] flex items-center justify-between text-xs font-bold text-[#40189D]">
@@ -169,11 +177,17 @@ export default function ExtensionPage() {
               </div>
 
               <div className="grid grid-cols-2 gap-2 text-xs">
-                <button className="p-2 bg-white rounded-lg border border-[#E2E2E5] font-semibold text-[#222222] flex items-center justify-center gap-1">
+                <button
+                  onClick={() => alert("Simplified Summary: Senior Frontend Developer building WCAG AAA accessible web applications.")}
+                  className="p-2 bg-white rounded-lg border border-[#E2E2E5] font-semibold text-[#222222] flex items-center justify-center gap-1 hover:bg-[#F5F5F6]"
+                >
                   <Eye className="w-3.5 h-3.5 text-[#40189D]" />
                   <span>Simplify Job</span>
                 </button>
-                <button className="p-2 bg-white rounded-lg border border-[#E2E2E5] font-semibold text-[#222222] flex items-center justify-center gap-1">
+                <button
+                  onClick={() => alert("Reading Aloud: Senior Frontend Developer position at XYZ Technologies.")}
+                  className="p-2 bg-white rounded-lg border border-[#E2E2E5] font-semibold text-[#222222] flex items-center justify-center gap-1 hover:bg-[#F5F5F6]"
+                >
                   <Volume2 className="w-3.5 h-3.5 text-[#40189D]" />
                   <span>Read Aloud</span>
                 </button>
@@ -182,14 +196,26 @@ export default function ExtensionPage() {
               <Button
                 variant="primary"
                 size="md"
+                onClick={() => setSmartApplyJob(demoJob)}
                 className="w-full bg-[#40189D] hover:bg-[#32127A] font-bold text-xs"
               >
-                Apply with Saarthi
+                Launch Smart Apply Demo
               </Button>
             </div>
           </Card>
         </div>
       </div>
+
+      {/* Smart Apply Controlled Flow Modal */}
+      <SmartApplyModal
+        job={smartApplyJob}
+        isOpen={Boolean(smartApplyJob)}
+        onClose={() => setSmartApplyJob(null)}
+        onSuccess={() => {
+          setSyncedMessage("✓ Smart Apply demo flow completed successfully!");
+          setTimeout(() => setSyncedMessage(""), 4000);
+        }}
+      />
     </div>
   );
 }
