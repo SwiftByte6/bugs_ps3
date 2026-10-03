@@ -11,4 +11,5 @@ opencv-python
 langgraph
 pymupdf
 pytest
+python-multipart
 
