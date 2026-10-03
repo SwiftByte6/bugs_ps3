@@ -18,31 +18,77 @@ import {
 } from "lucide-react";
 import { executeVoiceCommand } from "@/lib/services/voiceService";
 
+import { useRouter } from "next/navigation";
+import useProfile from "@/hooks/useProfile";
+
 export default function VoiceControlWidget({ onCommandExecute }) {
-  // Voice States: 'idle' | 'listening' | 'processing' | 'success' | 'error' | 'cancelled'
+  const router = useRouter();
+  const { accessibility } = useProfile();
+
+  // Voice States: 'idle' | 'listening' | 'processing' | 'success' | 'error' | 'cancelled' | 'paused'
   const [voiceState, setVoiceState] = useState("idle");
   const [transcript, setTranscript] = useState("");
   const [statusMessage, setStatusMessage] = useState("Click mic or press 'V' to speak");
   const [announcement, setAnnouncement] = useState("");
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
+  const [lastResponse, setLastResponse] = useState("");
 
   const recognitionRef = useRef(null);
+  const silenceTimerRef = useRef(null);
+  const isContinuousRef = useRef(false);
+  const isFirstLaunchRef = useRef(true);
+
+  const announce = (text) => {
+    setAnnouncement(text);
+    setLastResponse(text);
+    if (typeof window !== "undefined" && "speechSynthesis" in window) {
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.rate = 1.0;
+      utterance.onstart = () => setIsSpeaking(true);
+      utterance.onend = () => {
+        setIsSpeaking(false);
+        // If in continuous mode and not paused, resume listening
+        if (isContinuousRef.current && voiceState !== "paused") {
+          setTimeout(() => {
+            startListening();
+          }, 600);
+        }
+      };
+      utterance.onerror = () => setIsSpeaking(false);
+      window.speechSynthesis.speak(utterance);
+    }
+  };
+
+  const startListening = () => {
+    if (voiceState === "processing") return;
+    setTranscript("");
+    setVoiceState("listening");
+    setStatusMessage("Listening... Speak your command.");
+
+    if (recognitionRef.current) {
+      try {
+        recognitionRef.current.start();
+      } catch (e) {
+        // Already active
+      }
+    }
+  };
 
   useEffect(() => {
-    // Initialize Web Speech API if supported
+    // 1. Initialize Web Speech Recognition
     if (typeof window !== "undefined") {
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
       if (SpeechRecognition) {
         const recognition = new SpeechRecognition();
-        recognition.continuous = false;
+        recognition.continuous = true;
         recognition.interimResults = true;
         recognition.lang = "en-US";
 
         recognition.onstart = () => {
           setVoiceState("listening");
-          setStatusMessage("Listening... Speak your command clearly.");
-          announce("Voice assistant listening.");
+          setStatusMessage("Listening... Speak your command.");
         };
 
         recognition.onresult = (event) => {
@@ -51,37 +97,53 @@ export default function VoiceControlWidget({ onCommandExecute }) {
             currentTranscript += event.results[i][0].transcript;
           }
           setTranscript(currentTranscript);
+
+          // Clear existing silence timer
+          if (silenceTimerRef.current) {
+            clearTimeout(silenceTimerRef.current);
+          }
+
+          // 5-SECOND SILENCE RULE: Finalize utterance after 5s of silence
+          if (currentTranscript.trim()) {
+            silenceTimerRef.current = setTimeout(() => {
+              if (currentTranscript.trim()) {
+                recognition.stop();
+                handleProcessCommand(currentTranscript.trim());
+              }
+            }, 5000);
+          }
         };
 
         recognition.onerror = (event) => {
-          console.warn("Speech recognition error:", event.error);
-          if (event.error !== "aborted") {
-            setVoiceState("error");
-            setStatusMessage(`Error: ${event.error}. Click mic to try again.`);
-            announce("Speech recognition error.");
+          if (event.error !== "aborted" && event.error !== "no-speech") {
+            console.warn("Speech recognition notice:", event.error);
+            setVoiceState("idle");
           }
         };
 
         recognition.onend = () => {
-          // If transcript captured, process it
-          setTranscript((finalText) => {
-            if (finalText && finalText.trim()) {
-              handleProcessCommand(finalText.trim());
-            } else {
-              setVoiceState((prev) => (prev === "listening" ? "idle" : prev));
-              setStatusMessage("No speech detected. Click mic to try again.");
-            }
-            return "";
-          });
+          if (voiceState === "listening" && !isContinuousRef.current) {
+            setVoiceState("idle");
+          }
         };
 
         recognitionRef.current = recognition;
       }
     }
 
-    // Keyboard navigation listener ('V' key to toggle listening, 'Esc' to stop)
+    // 2. Blind / Low Vision Auto-Welcome & Activation (Requirement 6 & 7)
+    if (accessibility?.visual_assistance || accessibility?.voice_assistance) {
+      isContinuousRef.current = true;
+      if (isFirstLaunchRef.current) {
+        isFirstLaunchRef.current = false;
+        setTimeout(() => {
+          announce("Hey, welcome to Saarthi. How can I help you?");
+        }, 1200);
+      }
+    }
+
+    // 3. Global Keyboard Listener (V key toggles voice, Escape stops)
     const handleKeyDown = (e) => {
-      // Don't trigger if typing inside input/textarea
       if (["INPUT", "TEXTAREA", "SELECT"].includes(document.activeElement?.tagName)) return;
 
       if (e.key === "v" || e.key === "V") {
@@ -95,68 +157,76 @@ export default function VoiceControlWidget({ onCommandExecute }) {
     window.addEventListener("keydown", handleKeyDown);
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
+      if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
       if (recognitionRef.current) recognitionRef.current.abort();
     };
-  }, []);
-
-  const announce = (text) => {
-    setAnnouncement(text);
-    if (typeof window !== "undefined" && "speechSynthesis" in window) {
-      window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.rate = 1.0;
-      utterance.onstart = () => setIsSpeaking(true);
-      utterance.onend = () => setIsSpeaking(false);
-      utterance.onerror = () => setIsSpeaking(false);
-      window.speechSynthesis.speak(utterance);
-    }
-  };
+  }, [accessibility]);
 
   const toggleListening = () => {
     if (voiceState === "listening") {
       handleStopAll();
     } else {
-      setTranscript("");
-      setVoiceState("listening");
-      if (recognitionRef.current) {
-        try {
-          recognitionRef.current.start();
-        } catch (e) {
-          // Already started or restarting
-        }
-      } else {
-        // Fallback for browsers without Web Speech API
-        setStatusMessage("Simulating speech recognition...");
-        setTimeout(() => {
-          handleProcessCommand("Find frontend jobs");
-        }, 1500);
-      }
+      isContinuousRef.current = true;
+      startListening();
     }
   };
 
   const handleProcessCommand = async (text) => {
+    if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
     setVoiceState("processing");
-    setStatusMessage(`Processing: "${text}"...`);
+    setStatusMessage(`Understanding: "${text}"...`);
 
-    const result = await executeVoiceCommand(text, {
-      current_page: typeof window !== "undefined" ? window.location.pathname : "/dashboard",
-    });
+    try {
+      const result = await executeVoiceCommand(text, {
+        current_page: typeof window !== "undefined" ? window.location.pathname : "/dashboard",
+        previous_response: lastResponse,
+      });
 
-    const data = result.data || {};
-    const responseText = data.response_text || data.speech_announcement || `Executed ${text}`;
+      const data = result.data || {};
+      const action = data.action || "";
+      const target = data.target || "";
+      const responseText = data.response_text || data.speech_announcement || `Executed: ${text}`;
 
-    setVoiceState("success");
-    setStatusMessage(responseText);
-    announce(responseText);
+      setVoiceState("success");
+      setStatusMessage(responseText);
 
-    if (onCommandExecute) {
-      onCommandExecute(data);
-    }
+      // Execute Action Router
+      if (action === "NAVIGATE") {
+        const targetPage = data.target_page || "";
+        if (targetPage === "jobs" || target === "tab-jobsearch") router.push("/dashboard/jobs");
+        else if (targetPage === "applications" || target === "tab-tracker") router.push("/dashboard/applications");
+        else if (targetPage === "profile" || target === "tab-profile") router.push("/dashboard/profile");
+        else if (targetPage === "interview" || target === "tab-interview") router.push("/dashboard/interview-prep");
+        else if (targetPage === "assistant" || target === "tab-ai-assistant") router.push("/dashboard/assistant");
+        else if (targetPage === "settings" || target === "tab-settings") router.push("/dashboard/settings");
+      } else if (action === "NAVIGATE_JOBSEARCH") {
+        router.push("/dashboard/jobs");
+      } else if (action === "NAVIGATE_TRACKER") {
+        router.push("/dashboard/applications");
+      } else if (action === "NAVIGATE_INTERVIEW") {
+        router.push("/dashboard/interview-prep");
+      } else if (action === "STOP_ALL") {
+        isContinuousRef.current = false;
+        handleStopAll();
+        return;
+      } else if (action === "PAUSE_LISTENING") {
+        isContinuousRef.current = false;
+        setVoiceState("paused");
+      }
 
-    setTimeout(() => {
+      if (onCommandExecute) {
+        onCommandExecute(data);
+      }
+
+      // Speak response through TTS
+      announce(responseText);
+    } catch (err) {
+      console.error("Voice execution error:", err);
+      const errFallback = "I didn't understand that. Please tell me what you would like me to do.";
+      setStatusMessage(errFallback);
+      announce(errFallback);
       setVoiceState("idle");
-      setStatusMessage("Click mic or press 'V' to speak");
-    }, 5000);
+    }
   };
 
   const handleStopAll = () => {
@@ -196,29 +266,27 @@ export default function VoiceControlWidget({ onCommandExecute }) {
 
         <Badge
           variant={
-            voiceState === "listening"
+            isSpeaking
+              ? "primary"
+              : voiceState === "listening"
               ? "warning"
               : voiceState === "processing"
               ? "primary"
-              : voiceState === "success"
-              ? "success"
-              : voiceState === "error"
-              ? "danger"
+              : voiceState === "paused"
+              ? "default"
               : "default"
           }
           size="sm"
         >
-          {voiceState === "listening"
-            ? "Listening..."
+          {isSpeaking
+            ? "● Speaking"
+            : voiceState === "listening"
+            ? "● Listening"
             : voiceState === "processing"
-            ? "Processing..."
-            : voiceState === "success"
-            ? "Executed"
-            : voiceState === "error"
-            ? "Error"
-            : voiceState === "cancelled"
-            ? "Cancelled"
-            : "Idle"}
+            ? "● Processing"
+            : voiceState === "paused"
+            ? "● Paused"
+            : "● Waiting"}
         </Badge>
       </div>
 

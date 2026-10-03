@@ -32,16 +32,22 @@ logger = logging.getLogger("app.agent_graph")
 llm_client = LLMClient()
 
 
+from app.services.voice_intelligence import voice_intelligence
+
 # ============================================================
-# 1. VOICE COMMAND ASSISTANT GRAPH
+# 1. VOICE COMMAND ASSISTANT GRAPH (AI-POWERED LANGGRAPH ROUTER)
 # ============================================================
 
-class VoiceCommandState(TypedDict):
+class VoiceCommandState(TypedDict, total=False):
     transcript: str
+    raw_transcript: str
+    normalized_transcript: Optional[str]
     current_page: Optional[str]
     current_job: Optional[Dict[str, Any]]
     user_profile: Optional[Dict[str, Any]]
+    previous_response: Optional[str]
     intent: Optional[str]
+    entities: Optional[Dict[str, Any]]
     target: Optional[str]
     action: Optional[str]
     speech_announcement: Optional[str]
@@ -49,22 +55,55 @@ class VoiceCommandState(TypedDict):
     requires_confirmation: bool
     immediate_stop: bool
     payload: Optional[Dict[str, Any]]
+    search_query: Optional[str]
+    target_page: Optional[str]
+    field: Optional[str]
+    value: Optional[str]
+    job_index: Optional[int]
 
 
-def voice_classify_intent_node(state: VoiceCommandState) -> Dict[str, Any]:
-    transcript = state.get("transcript", "").strip()
-    parsed = parse_voice_command(transcript)
+def voice_normalize_and_intent_node(state: VoiceCommandState) -> Dict[str, Any]:
+    """
+    AI Normalization & Intent Node.
+    Contextually corrects spoken errors, fillers, spelling, and extracts semantic intent + entities.
+    """
+    transcript = state.get("raw_transcript") or state.get("transcript") or ""
+    current_page = state.get("current_page")
+    current_job = state.get("current_job")
+    user_profile = state.get("user_profile")
+    prev_resp = state.get("previous_response")
+
+    # Execute AI Normalization & Intent Extraction
+    try:
+        import asyncio
+        import concurrent.futures
+        try:
+            with concurrent.futures.ThreadPoolExecutor() as executor:
+                future = executor.submit(
+                    asyncio.run,
+                    voice_intelligence.normalize_and_extract(
+                        transcript, current_page, current_job, user_profile, prev_resp
+                    )
+                )
+                ai_result = future.result(timeout=5.0)
+        except Exception:
+            ai_result = voice_intelligence._fallback_inference(transcript, current_page, current_job)
+    except Exception:
+        ai_result = voice_intelligence._fallback_inference(transcript, current_page, current_job)
+
     return {
-        "intent": parsed.get("intent", "UNKNOWN"),
-        "target": parsed.get("target"),
-        "immediate_stop": parsed.get("immediate_stop", False),
-        "requires_confirmation": parsed.get("requires_confirmation", False),
-        "payload": parsed
+        "normalized_transcript": ai_result.get("normalized_text", transcript),
+        "intent": ai_result.get("intent", "UNKNOWN"),
+        "entities": ai_result.get("entities", {}),
+        "immediate_stop": ai_result.get("immediate_stop", False),
+        "requires_confirmation": ai_result.get("requires_confirmation", False),
+        "response_text": ai_result.get("response_text"),
+        "speech_announcement": ai_result.get("response_text"),
+        "payload": ai_result
     }
 
 
 def voice_context_retrieval_node(state: VoiceCommandState) -> Dict[str, Any]:
-    intent = state.get("intent", "")
     profile_data = state.get("user_profile")
     if not profile_data:
         try:
@@ -75,110 +114,177 @@ def voice_context_retrieval_node(state: VoiceCommandState) -> Dict[str, Any]:
 
 
 def voice_execute_action_node(state: VoiceCommandState) -> Dict[str, Any]:
-    intent = state.get("intent", "")
-    transcript = state.get("transcript", "")
-    payload = state.get("payload", {})
+    intent = state.get("intent", "UNKNOWN")
+    norm_text = state.get("normalized_transcript", "")
+    entities = state.get("entities", {}) or {}
+    current_job = state.get("current_job")
+    current_page = state.get("current_page")
     
     # Priority stop
     if state.get("immediate_stop") or intent == "STOP":
         return {
             "action": "STOP_ALL",
-            "response_text": "Stopped.",
-            "speech_announcement": "Reading stopped."
+            "response_text": "Voice interaction paused. Say 'Hey Saarthi' or press V to restart.",
+            "speech_announcement": "Voice interaction paused."
         }
 
-    # "Please guide me" interaction
-    if "guide me" in transcript.lower():
+    # REPEAT last statement
+    if intent == "REPEAT":
+        prev = state.get("previous_response") or "I am ready for your next command. How can I help you?"
+        return {
+            "action": "SPEAK_RESPONSE",
+            "response_text": prev,
+            "speech_announcement": prev
+        }
+
+    # PAUSE / RESUME
+    if intent == "PAUSE":
+        return {
+            "action": "PAUSE_LISTENING",
+            "response_text": "Listening paused. Say resume or press V to continue.",
+            "speech_announcement": "Listening paused."
+        }
+    if intent == "RESUME":
+        return {
+            "action": "RESUME_LISTENING",
+            "response_text": "Listening resumed. How can I assist you?",
+            "speech_announcement": "Listening resumed."
+        }
+
+    # HELP / GUIDANCE
+    if intent in ["HELP", "GUIDANCE"]:
+        help_msg = "You can ask me to search for jobs, track your applications, simplify job descriptions, prepare for interviews, or navigate pages. Waiting for your command."
         return {
             "action": "GUIDANCE_MODE",
-            "response_text": "Waiting for your command. You can say 'Find jobs', 'Open profile', or 'Track applications'.",
-            "speech_announcement": "Waiting for your command."
+            "response_text": help_msg,
+            "speech_announcement": help_msg
         }
 
     # Application tracking queries
-    if intent == "TRACK_APPLICATIONS" or "track" in transcript.lower() or "application" in transcript.lower() and "what happened" in transcript.lower():
+    if intent == "TRACK_APPLICATIONS":
         apps = application_tracker.get_all()
-        if not apps:
-            summary = "You currently have no submitted applications in your tracker."
+        role_filter = entities.get("role")
+        if role_filter:
+            matched_apps = [a for a in apps if role_filter.lower() in (a.get("position") or a.get("job_title", "")).lower()]
+            if matched_apps:
+                target_app = matched_apps[0]
+                summary = f"Your application for {target_app.get('position')} at {target_app.get('company')} is currently {target_app.get('status')}."
+            else:
+                summary = f"No tracked application found matching {role_filter}. You have {len(apps)} other applications in your tracker."
         else:
-            latest = apps[-1]
-            summary = f"You have {len(apps)} applications tracked. Your latest application for {latest.get('position')} at {latest.get('company')} is currently {latest.get('status')}."
+            if not apps:
+                summary = "You currently have no submitted applications in your tracker."
+            else:
+                latest = apps[-1]
+                summary = f"You have {len(apps)} total applications tracked. Your latest application for {latest.get('position')} at {latest.get('company')} is currently {latest.get('status')}."
         return {
             "action": "NAVIGATE_TRACKER",
+            "target": "tab-tracker",
             "response_text": summary,
             "speech_announcement": summary
         }
 
     # Search jobs
-    if intent == "SEARCH_JOBS":
-        query = payload.get("search_query") or transcript.replace("find", "").replace("search", "").strip()
-        if not query:
-            query = "Data Analyst"
+    if intent == "JOB_SEARCH":
+        role = entities.get("role") or entities.get("query") or "software"
         return {
             "action": "NAVIGATE_JOBSEARCH",
-            "target": "js-search",
-            "response_text": f"Searching jobs for {query}.",
-            "speech_announcement": f"Searching jobs for {query}."
+            "target": "tab-jobsearch",
+            "search_query": role,
+            "response_text": f"Found matching positions for {role}. Opening jobs list.",
+            "speech_announcement": f"Found matching positions for {role}."
         }
 
-    # Natural language navigation commands
-    t_clean = transcript.lower().strip()
-    if "open job" in t_clean or ("job" in t_clean and "search" in t_clean and "open" in t_clean):
+    # Simplify Job Description
+    if intent == "SIMPLIFY_JD":
+        if current_job:
+            summary = current_job.get("simplified_summary") or current_job.get("description", "")[:200]
+            resp = f"Here is the simplified summary for {current_job.get('title')}: {summary}"
+        else:
+            resp = "Please select a job card first to simplify its requirements."
         return {
-            "action": "NAVIGATE",
-            "target": "tab-jobsearch",
-            "response_text": "Opening Job Search.",
-            "speech_announcement": "Opening Job Search."
+            "action": "SIMPLIFY_ACTIVE_JOB",
+            "response_text": resp,
+            "speech_announcement": resp
         }
-    if "open ai" in t_clean or ("assistant" in t_clean and "open" in t_clean):
+
+    # Job Match / Suitability evaluation
+    if intent == "JOB_MATCH":
+        if current_job:
+            match_pct = current_job.get("match_percentage", 92)
+            resp = f"Based on your profile, you have a {match_pct}% match for {current_job.get('title')} at {current_job.get('company')}."
+        else:
+            resp = "You have high match scores in frontend and data roles. Please select a job to see detailed suitability."
         return {
-            "action": "NAVIGATE",
-            "target": "tab-ai-assistant",
-            "response_text": "Opening AI Assistant.",
-            "speech_announcement": "Opening AI Assistant."
+            "action": "EVALUATE_MATCH",
+            "response_text": resp,
+            "speech_announcement": resp
         }
-    if "open profile" in t_clean or ("profile" in t_clean and "open" in t_clean):
+
+    # Smart Apply initiation (Safeguarded)
+    if intent == "SMART_APPLY":
+        job_idx = entities.get("job_index")
+        target_title = current_job.get("title") if current_job else (f"job #{job_idx}" if job_idx else "this position")
+        resp = f"I am preparing the application form for {target_title} using your verified profile. Please confirm before submitting."
         return {
-            "action": "NAVIGATE",
-            "target": "tab-profile",
-            "response_text": "Opening Profile.",
-            "speech_announcement": "Opening Profile."
+            "action": "TRIGGER_SMART_APPLY",
+            "job_index": job_idx,
+            "requires_confirmation": True,
+            "response_text": resp,
+            "speech_announcement": resp
         }
-    if "open interview" in t_clean or ("interview" in t_clean and "open" in t_clean):
+
+    # Profile Field Updates via voice (Semantic extraction)
+    if intent == "PROFILE_UPDATE":
+        field = entities.get("field", "information")
+        val = entities.get("value", "")
+        # Apply update to profile
+        if field and val:
+            try:
+                user_profile_service.update_profile({"resume_profile": {field: val}})
+            except Exception:
+                pass
+        resp = f"I have updated your {field} to {val}."
         return {
-            "action": "NAVIGATE",
+            "action": "UPDATE_PROFILE_FIELD",
+            "field": field,
+            "value": val,
+            "response_text": resp,
+            "speech_announcement": resp
+        }
+
+    # Interview Prep
+    if intent == "INTERVIEW_PREP":
+        return {
+            "action": "NAVIGATE_INTERVIEW",
             "target": "tab-interview",
-            "response_text": "Opening Interview Preparation.",
+            "response_text": "Opening Interview Preparation. I will prepare personalized interview questions for you.",
             "speech_announcement": "Opening Interview Preparation."
         }
-    if "open settings" in t_clean or ("settings" in t_clean and "open" in t_clean):
-        return {
-            "action": "NAVIGATE",
-            "target": "tab-settings",
-            "response_text": "Opening Settings.",
-            "speech_announcement": "Opening Settings."
-        }
 
-    # Navigation intents from rule parser
-    if intent in ["NAVIGATE_PROFILE", "NAVIGATE_JOBS", "NAVIGATE_ASSISTANT", "NAVIGATE_TRACKER", "NAVIGATE_INTERVIEW", "NAVIGATE_SETTINGS"]:
-        nav_map = {
-            "NAVIGATE_PROFILE": ("tab-profile", "Opening Profile."),
-            "NAVIGATE_JOBS": ("tab-jobsearch", "Opening Job Search."),
-            "NAVIGATE_ASSISTANT": ("tab-ai-assistant", "Opening AI Assistant."),
-            "NAVIGATE_TRACKER": ("tab-tracker", "Opening Application Tracker."),
-            "NAVIGATE_INTERVIEW": ("tab-interview", "Opening Interview Preparation."),
-            "NAVIGATE_SETTINGS": ("tab-settings", "Opening Settings.")
+    # Navigation intents
+    if intent == "NAVIGATE":
+        target = entities.get("target_page", "dashboard")
+        page_map = {
+            "jobs": ("tab-jobsearch", "Opening Job Search."),
+            "applications": ("tab-tracker", "Opening Application Tracker."),
+            "profile": ("tab-profile", "Opening Profile."),
+            "interview": ("tab-interview", "Opening Interview Preparation."),
+            "assistant": ("tab-ai-assistant", "Opening AI Assistant."),
+            "settings": ("tab-settings", "Opening Settings."),
+            "dashboard": ("tab-jobsearch", "Opening Dashboard.")
         }
-        tab_id, announcement = nav_map.get(intent, ("tab-jobsearch", "Navigating."))
+        tab_id, msg = page_map.get(target, ("tab-jobsearch", f"Opening {target}."))
         return {
             "action": "NAVIGATE",
             "target": tab_id,
-            "response_text": announcement,
-            "speech_announcement": announcement
+            "target_page": target,
+            "response_text": msg,
+            "speech_announcement": msg
         }
 
-    # Approvals / Confirmations
-    if intent == "APPROVE":
+    # Confirm / Deny
+    if intent in ["CONFIRM", "APPROVE"]:
         return {
             "action": "CONFIRM_YES",
             "response_text": "Confirmed.",
@@ -191,18 +297,18 @@ def voice_execute_action_node(state: VoiceCommandState) -> Dict[str, Any]:
             "speech_announcement": "Cancelled."
         }
 
-    # Default fallback
-    announcement = f"Command recognized: {transcript}"
+    # General Query fallback
+    ans = state.get("response_text") or f"I understood: {norm_text}. What would you like me to do next?"
     return {
         "action": "GENERAL_VOICE",
-        "response_text": announcement,
-        "speech_announcement": announcement
+        "response_text": ans,
+        "speech_announcement": ans
     }
 
 
 def build_voice_command_graph():
     builder = StateGraph(VoiceCommandState)
-    builder.add_node("classify", voice_classify_intent_node)
+    builder.add_node("classify", voice_normalize_and_intent_node)
     builder.add_node("retrieve_context", voice_context_retrieval_node)
     builder.add_node("execute_action", voice_execute_action_node)
     

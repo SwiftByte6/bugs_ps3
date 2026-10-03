@@ -12,4 +12,8 @@ langgraph
 pymupdf
 pytest
 python-multipart
+faster-whisper
+sounddevice
+numpy
+
 

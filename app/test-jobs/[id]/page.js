@@ -150,10 +150,7 @@ export default async function TestJobDetailPage({ params }) {
             <form
               id="job-application-form"
               className="space-y-4 bg-gray-50 p-6 rounded-lg border border-gray-200"
-              onSubmit={(e) => {
-                e.preventDefault();
-                alert("✓ Application submitted via test portal!");
-              }}
+              action="#"
             >
               {/* Safe Fields */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

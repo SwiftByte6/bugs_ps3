@@ -1,15 +1,25 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Eye, Type, Sparkles, Check, Mic } from "lucide-react";
 import VoiceControlWidget from "./VoiceControlWidget";
 
+import useProfile from "@/hooks/useProfile";
+
 export default function AccessibilityToolbar() {
+  const { accessibility } = useProfile();
   const [highContrast, setHighContrast] = useState(false);
   const [largeText, setLargeText] = useState(false);
   const [showVoice, setShowVoice] = useState(false);
   const [announcement, setAnnouncement] = useState("");
   const [isOpen, setIsOpen] = useState(false);
+
+  // Auto-enable Voice companion for blind / visual_assistance mode
+  useEffect(() => {
+    if (accessibility?.visual_assistance || accessibility?.voice_assistance) {
+      setShowVoice(true);
+    }
+  }, [accessibility]);
 
   const toggleHighContrast = () => {
     const nextState = !highContrast;

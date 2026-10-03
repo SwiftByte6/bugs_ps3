@@ -70,10 +70,15 @@ async def process_voice_command(req: VoiceCommandRequest):
         return {
             "status": "success",
             "data": {
+                "raw_transcript": transcript,
                 "transcript": transcript,
+                "normalized_transcript": graph_output.get("normalized_transcript") or transcript,
                 "intent": graph_output.get("intent"),
+                "entities": graph_output.get("entities", {}),
                 "action": graph_output.get("action"),
                 "target": graph_output.get("target"),
+                "target_page": graph_output.get("target_page"),
+                "search_query": graph_output.get("search_query"),
                 "response_text": graph_output.get("response_text"),
                 "speech_announcement": graph_output.get("speech_announcement"),
                 "immediate_stop": graph_output.get("immediate_stop", False),

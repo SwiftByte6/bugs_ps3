@@ -1,5 +1,32 @@
 [
   {
+    "id": "e2e-job-01",
+    "job_id": "e2e-job-01",
+    "title": "Senior Accessibility Specialist",
+    "company": "EquiTech Global",
+    "location": "Remote / Bengaluru",
+    "work_mode": "Remote",
+    "type": "Full-time",
+    "employment_type": "Full-time",
+    "experience": "3+ years",
+    "skills": [
+      "WCAG 2.2",
+      "React",
+      "Screen Readers"
+    ],
+    "description": "Lead web accessibility audits and assistive tech integrations.",
+    "job_url": "http://localhost:3000/test-jobs/job-001",
+    "source": "TestJobPortal",
+    "scraped_at": "",
+    "match_percentage": 90,
+    "matched_skills": [
+      "WCAG 2.2",
+      "React",
+      "Screen Readers"
+    ],
+    "missing_skills": []
+  },
+  {
     "id": "job-005",
     "job_id": "job-005",
     "title": "Data Analyst",
@@ -8,7 +35,7 @@
     "work_mode": "Full-time",
     "type": "Full-time",
     "employment_type": "Full-time",
-    "experience": "0–2 years",
+    "experience": "0\u20132 years",
     "skills": [
       "Python",
       "SQL",
@@ -18,7 +45,7 @@
     "description": "DataSphere is seeking a Data Analyst to extract insights, create interactive dashboards, and drive business decisions.",
     "job_url": "http://localhost:3000/test-jobs/job-005",
     "source": "test_job_portal",
-    "scraped_at": "2026-10-03T06:12:13.277Z",
+    "scraped_at": "2026-10-03T06:44:06.903Z",
     "match_percentage": 90,
     "matched_skills": [
       "Python",
@@ -36,7 +63,7 @@
     "work_mode": "Full-time",
     "type": "Full-time",
     "employment_type": "Full-time",
-    "experience": "1–3 years",
+    "experience": "1\u20133 years",
     "skills": [
       "Figma",
       "UI Design",
@@ -45,7 +72,7 @@
     "description": "DesignHub is looking for an empathetic UI/UX Designer dedicated to accessible and intuitive digital experiences.",
     "job_url": "http://localhost:3000/test-jobs/job-004",
     "source": "test_job_portal",
-    "scraped_at": "2026-10-03T06:12:13.277Z",
+    "scraped_at": "2026-10-03T06:44:06.903Z",
     "match_percentage": 90,
     "matched_skills": [
       "Figma",
@@ -63,7 +90,7 @@
     "work_mode": "Remote",
     "type": "Full-time",
     "employment_type": "Full-time",
-    "experience": "2–4 years",
+    "experience": "2\u20134 years",
     "skills": [
       "Python",
       "FastAPI",
@@ -73,7 +100,7 @@
     "description": "CloudCore is hiring a Backend Developer to design scalable REST APIs, microservices, and database pipelines.",
     "job_url": "http://localhost:3000/test-jobs/job-003",
     "source": "test_job_portal",
-    "scraped_at": "2026-10-03T06:12:13.277Z",
+    "scraped_at": "2026-10-03T06:44:06.903Z",
     "match_percentage": 90,
     "matched_skills": [
       "Python",
@@ -91,7 +118,7 @@
     "work_mode": "Full-time",
     "type": "Full-time",
     "employment_type": "Full-time",
-    "experience": "1–3 years",
+    "experience": "1\u20133 years",
     "skills": [
       "React",
       "JavaScript",
@@ -101,7 +128,7 @@
     "description": "PixelWorks is seeking a skilled Frontend Developer to craft responsive, accessible user interfaces.",
     "job_url": "http://localhost:3000/test-jobs/job-002",
     "source": "test_job_portal",
-    "scraped_at": "2026-10-03T06:12:13.277Z",
+    "scraped_at": "2026-10-03T06:44:06.903Z",
     "match_percentage": 90,
     "matched_skills": [
       "React",
@@ -119,7 +146,7 @@
     "work_mode": "Full-time",
     "type": "Full-time",
     "employment_type": "Full-time",
-    "experience": "0–2 years",
+    "experience": "0\u20132 years",
     "skills": [
       "Python",
       "React",
@@ -129,7 +156,7 @@
     "description": "TechNova Solutions is looking for a Software Engineer to build web applications and backend services.",
     "job_url": "http://localhost:3000/test-jobs/job-001",
     "source": "test_job_portal",
-    "scraped_at": "2026-10-03T06:12:13.277Z",
+    "scraped_at": "2026-10-03T06:44:06.903Z",
     "match_percentage": 90,
     "matched_skills": [
       "Python",

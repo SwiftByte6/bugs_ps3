@@ -1,29 +1,26 @@
 {
   "accessibility": {
     "screen_reader": false,
-    "voice_navigation": true,
+    "voice_navigation": false,
     "keyboard_navigation": true,
     "captions": true,
     "text_first": true,
-    "text_to_speech": true,
-    "speech_to_text": true,
-    "large_text": true,
+    "text_to_speech": false,
+    "speech_to_text": false,
+    "large_text": false,
     "high_contrast": false,
     "reduced_motion": false,
-    "dyslexia_mode": true,
+    "dyslexia_mode": false,
     "simplified_language": true,
     "eye_control": false,
     "blink_control": false,
     "preferred_language": "English",
     "accommodation_disclosure": "ask_every_time",
-    "declared_needs": [
-      "Dyslexia",
-      "Motor disability"
-    ],
-    "additional_requirements": "Extra time needed",
-    "head_gestures": true,
-    "hand_gestures": true,
-    "focus_mode": true
+    "declared_needs": [],
+    "additional_requirements": "",
+    "head_gestures": false,
+    "hand_gestures": false,
+    "focus_mode": false
   },
   "resume_profile": {
     "name": "Test User",
