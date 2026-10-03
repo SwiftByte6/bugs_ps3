@@ -70,7 +70,7 @@ def test_langgraph_voice_command_endpoint():
     res_guide = client.post("/api/voice/command", json={"transcript": "please guide me"})
     assert res_guide.status_code == 200
     assert res_guide.json()["data"]["action"] == "GUIDANCE_MODE"
-    assert "Waiting for your command" in res_guide.json()["data"]["speech_announcement"]
+    assert "Yes, how can I help you?" in res_guide.json()["data"]["speech_announcement"]
 
     # Test 3: Tracker query
     res_track = client.post("/api/voice/command", json={"transcript": "track what happened to my application"})

@@ -350,5 +350,115 @@
     "notes": "Submitted via Saarthi Smart Apply with explicit candidate confirmation.",
     "follow_up_date": null,
     "accessibility_info": ""
+  },
+  {
+    "id": "app_033",
+    "company": "Test Company",
+    "position": "Data Scientist",
+    "date_applied": "2026-10-03",
+    "status": "Applied",
+    "interview_date": null,
+    "notes": "",
+    "follow_up_date": null,
+    "accessibility_info": ""
+  },
+  {
+    "id": "app_034",
+    "company": "CogniCorp",
+    "position": "Analyst",
+    "date_applied": "2026-10-03",
+    "status": "Applied",
+    "interview_date": null,
+    "notes": "Submitted via Smart Form Assistant with 1 populated fields.",
+    "follow_up_date": null,
+    "accessibility_info": "User confirmed accessible submission."
+  },
+  {
+    "id": "app_035",
+    "company": "CogniCorp Technologies",
+    "position": "Junior Data Analyst",
+    "date_applied": "2026-10-03",
+    "status": "Applied",
+    "interview_date": null,
+    "notes": "Submitted via Saarthi Smart Apply with explicit candidate confirmation.",
+    "follow_up_date": null,
+    "accessibility_info": ""
+  },
+  {
+    "id": "app_036",
+    "company": "Test Company",
+    "position": "Data Scientist",
+    "date_applied": "2026-10-03",
+    "status": "Applied",
+    "interview_date": null,
+    "notes": "",
+    "follow_up_date": null,
+    "accessibility_info": ""
+  },
+  {
+    "id": "app_037",
+    "company": "CogniCorp",
+    "position": "Analyst",
+    "date_applied": "2026-10-03",
+    "status": "Applied",
+    "interview_date": null,
+    "notes": "Submitted via Smart Form Assistant with 1 populated fields.",
+    "follow_up_date": null,
+    "accessibility_info": "User confirmed accessible submission."
+  },
+  {
+    "id": "app_038",
+    "company": "CogniCorp Technologies",
+    "position": "Junior Data Analyst",
+    "date_applied": "2026-10-03",
+    "status": "Applied",
+    "interview_date": null,
+    "notes": "Submitted via Saarthi Smart Apply with explicit candidate confirmation.",
+    "follow_up_date": null,
+    "accessibility_info": ""
+  },
+  {
+    "id": "app_039",
+    "company": "CogniCorp Technologies",
+    "position": "Junior Data Analyst",
+    "date_applied": "2026-10-03",
+    "status": "Applied",
+    "interview_date": null,
+    "notes": "Submitted via Saarthi Smart Apply with explicit candidate confirmation.",
+    "follow_up_date": null,
+    "accessibility_info": ""
+  },
+  {
+    "id": "app_040",
+    "company": "Test Company",
+    "position": "Data Scientist",
+    "date_applied": "2026-10-03",
+    "status": "Applied",
+    "interview_date": null,
+    "notes": "",
+    "follow_up_date": null,
+    "accessibility_info": ""
+  },
+  {
+    "id": "app_041",
+    "company": "CogniCorp",
+    "position": "Analyst",
+    "date_applied": "2026-10-03",
+    "status": "Applied",
+    "interview_date": null,
+    "notes": "Submitted via Smart Form Assistant with 1 populated fields.",
+    "follow_up_date": null,
+    "accessibility_info": "User confirmed accessible submission."
+  },
+  {
+    "id": "app_042",
+    "company": "CogniCorp Technologies",
+    "position": "Junior Data Analyst",
+    "date_applied": "2026-10-03",
+    "status": "Applied",
+    "interview_date": null,
+    "notes": "Submitted via Saarthi Smart Apply with explicit candidate confirmation.",
+    "follow_up_date": null,
+    "accessibility_info": ""
   }
 ]

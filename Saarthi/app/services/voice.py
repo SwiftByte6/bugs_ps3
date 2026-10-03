@@ -2,13 +2,16 @@ import re
 from typing import Dict, Any, Optional
 
 COMMAND_PATTERNS = [
+    (r"^\s*please\s+guide\s+me[\s\.\!\?]*$", "WAKE_WORD", "Activate Saarthi AI Assistant."),
     (r"\b(stop|halt)\b", "STOP", "Immediately stop active speech and automated actions."),
     (r"\b(cancel( application)?)\b", "CANCEL", "Cancel current action or application flow."),
     (r"\b(yes|approve|agree|proceed)\b", "APPROVE", "Confirm and approve current action."),
     (r"\b(no|deny|reject)\b", "DENY", "Reject or deny current action."),
+    (r"\b(help\s+me\s+apply|apply\s+(for\s+this\s+job|with\s+saarthi)?)\b", "SMART_APPLY", "Initiate Smart Apply workflow for active job."),
     (r"\b(find|search( for)?)\s+(.+)", "SEARCH_JOBS", "Search for matching job opportunities."),
     (r"\bread (this )?page\b", "READ_PAGE", "Read the main content and structure of current screen."),
-    (r"\bexplain (this )?job\b", "EXPLAIN_JOB", "Explain the active job description and required qualifications."),
+    (r"\bexplain (this )?job( requirement)?\b", "EXPLAIN_JOB", "Explain the active job description and required qualifications."),
+    (r"\b(track|what happened to|status of)\s+(my\s+)?applications?\b", "TRACK_APPLICATIONS", "Check status of submitted job applications."),
     (r"\b(go to )?next (field|input)\b", "NEXT_FIELD", "Move keyboard focus to the next form field."),
     (r"\b(go to )?previous (field|input)\b", "PREV_FIELD", "Move keyboard focus to the previous form field."),
     (r"\bnext (job|opening)\b", "NEXT_JOB", "Navigate to the next job opening."),

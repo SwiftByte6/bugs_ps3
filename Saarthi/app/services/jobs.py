@@ -110,7 +110,7 @@ async def simplify_job_description(jd_text: str, llm_client: LLMClient) -> Dict[
         "company": parsed["company"],
         "simplified_text": simplified_text,
         "structured_data": parsed,
-        "headers_present": [h for h in required_headers if h in simplified_text.upper()],
+        "headers_present": [h for h in required_headers if h in (simplified_text or "").upper()],
         "read_aloud_summary": f"This is an opening for {parsed['title']} at {parsed['company']}. Key skills include {', '.join(parsed['required_skills'][:4])}."
     }
 

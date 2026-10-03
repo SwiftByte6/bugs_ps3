@@ -24,9 +24,9 @@
   },
   "resume_profile": {
     "name": "Test User",
-    "email": "candidate@example.com",
-    "phone": "+91 98765 43210",
-    "location": "Mumbai, India",
+    "email": "test@example.com",
+    "phone": "+91 9000000000",
+    "location": "Pune, India",
     "education": [
       {
         "degree": "B.Tech Computer Engineering",

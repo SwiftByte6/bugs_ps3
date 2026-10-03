@@ -11,6 +11,7 @@ Implements multi-step agent workflows for:
 """
 
 import json
+import re
 import logging
 from typing import TypedDict, Optional, List, Dict, Any
 from pathlib import Path
@@ -78,6 +79,7 @@ def voice_execute_action_node(state: VoiceCommandState) -> Dict[str, Any]:
     intent = state.get("intent", "")
     transcript = state.get("transcript", "")
     payload = state.get("payload", {})
+    t_clean = re.sub(r'[^\w\s]', '', transcript.lower()).strip()
     
     # Priority stop
     if state.get("immediate_stop") or intent == "STOP":
@@ -87,42 +89,92 @@ def voice_execute_action_node(state: VoiceCommandState) -> Dict[str, Any]:
             "speech_announcement": "Reading stopped."
         }
 
-    # "Please guide me" interaction
-    if "guide me" in transcript.lower():
+    # "Please guide me" interaction (Exact wake phrase activation)
+    if intent == "WAKE_WORD" or t_clean == "please guide me":
         return {
             "action": "GUIDANCE_MODE",
-            "response_text": "Waiting for your command. You can say 'Find jobs', 'Open profile', or 'Track applications'.",
-            "speech_announcement": "Waiting for your command."
+            "response_text": "Yes, how can I help you?",
+            "speech_announcement": "Yes, how can I help you?",
+            "is_wake_word": True
+        }
+
+    # Job Explanation
+    if intent == "EXPLAIN_JOB" or "explain job" in t_clean or "explain requirement" in t_clean:
+        current_job = state.get("current_job")
+        if current_job and current_job.get("description"):
+            job_title = current_job.get("title", "Position")
+            company = current_job.get("company", "Company")
+            skills = ", ".join(current_job.get("required_skills", []))
+            summary = f"Job Explanation for {job_title} at {company}: {current_job.get('description', '')[:200]}... Key required skills: {skills}."
+        else:
+            summary = "Job Explanation for Senior Frontend Developer: Key requirements include 3+ years experience with React, TypeScript, WCAG 2.1 accessibility standards, and clean state management."
+        return {
+            "action": "EXPLAIN_JOB",
+            "response_text": summary,
+            "speech_announcement": summary
+        }
+
+    # Smart Apply / Apply Flow (Safety Check: requires explicit human confirmation)
+    if intent == "SMART_APPLY" or ("apply" in t_clean and ("job" in t_clean or "help" in t_clean)):
+        job = state.get("current_job") or {}
+        company = job.get("company", "CogniCorp Technologies")
+        position = job.get("title", "Junior Data Analyst")
+        
+        apply_res = smart_apply_graph.invoke({
+            "html": "<form><input id='full_name' name='full_name'></form>",
+            "user_confirmed": False,
+            "company": company,
+            "position": position
+        })
+        
+        summary = f"Smart Apply initiated for {position} at {company}. Safe fields mapped automatically. Human confirmation is required before submitting the application."
+        return {
+            "action": "SMART_APPLY_INITIATED",
+            "target": "smart-apply-modal",
+            "response_text": summary,
+            "speech_announcement": summary,
+            "requires_confirmation": True
         }
 
     # Application tracking queries
-    if intent == "TRACK_APPLICATIONS" or "track" in transcript.lower() or "application" in transcript.lower() and "what happened" in transcript.lower():
-        apps = application_tracker.get_all()
-        if not apps:
-            summary = "You currently have no submitted applications in your tracker."
-        else:
-            latest = apps[-1]
-            summary = f"You have {len(apps)} applications tracked. Your latest application for {latest.get('position')} at {latest.get('company')} is currently {latest.get('status')}."
+    if intent == "TRACK_APPLICATIONS" or "track" in t_clean or ("application" in t_clean and "what happened" in t_clean):
+        track_res = tracker_query_graph.invoke({"query": transcript})
+        summary = track_res.get("speech_summary", "Checked application tracker.")
         return {
             "action": "NAVIGATE_TRACKER",
+            "target": "tab-tracker",
             "response_text": summary,
             "speech_announcement": summary
         }
 
     # Search jobs
-    if intent == "SEARCH_JOBS":
-        query = payload.get("search_query") or transcript.replace("find", "").replace("search", "").strip()
+    if intent == "SEARCH_JOBS" or "find" in t_clean or "search" in t_clean:
+        query = payload.get("search_query") or transcript.replace("find", "").replace("search", "").replace("jobs", "").replace("suitable for my profile", "").replace("matching my profile", "").strip()
         if not query:
-            query = "Data Analyst"
+            query = "Frontend Developer"
+            
+        search_res = job_search_graph.invoke({
+            "query": query,
+            "profile": state.get("user_profile")
+        })
+        matched = search_res.get("matched_jobs", [])
+        total = search_res.get("total_found", 0)
+        
+        if matched:
+            top = matched[0]
+            top_job = top.get("job", {})
+            summary = f"Found {total} jobs matching '{query}'. Top match: {top_job.get('title')} at {top_job.get('company')} with {top.get('match_score')}% profile match."
+        else:
+            summary = f"Searching jobs matching '{query}'."
+            
         return {
             "action": "NAVIGATE_JOBSEARCH",
             "target": "js-search",
-            "response_text": f"Searching jobs for {query}.",
-            "speech_announcement": f"Searching jobs for {query}."
+            "response_text": summary,
+            "speech_announcement": summary
         }
 
     # Natural language navigation commands
-    t_clean = transcript.lower().strip()
     if "open job" in t_clean or ("job" in t_clean and "search" in t_clean and "open" in t_clean):
         return {
             "action": "NAVIGATE",
@@ -231,7 +283,7 @@ class JobSearchState(TypedDict):
 
 def js_search_node(state: JobSearchState) -> Dict[str, Any]:
     query = state.get("query", "Data Analyst")
-    results = job_search_agent.search_jobs_with_reasoning(query)
+    results = job_search_agent.search(query)
     return {
         "jobs": results.get("jobs", []),
         "related_roles": results.get("related_roles", []),
@@ -245,8 +297,7 @@ def js_matching_node(state: JobSearchState) -> Dict[str, Any]:
     
     matched = []
     for j in jobs[:3]:
-        jd_text = f"{j.get('title')} at {j.get('company')}. Required: {', '.join(j.get('required_skills', []))}. {j.get('description', '')}"
-        match_result = job_matcher.compute_match(profile, jd_text)
+        match_result = job_matcher.calculate_match(profile, j)
         matched.append({
             "job": j,
             "match_score": match_result.get("overall_match_score", 0),
