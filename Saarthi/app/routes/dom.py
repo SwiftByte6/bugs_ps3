@@ -10,20 +10,33 @@ from app.services.tracker import application_tracker
 router = APIRouter(prefix="/api/dom", tags=["DOM & Forms"])
 
 
+from pydantic import BaseModel, Field
+
 class HTMLPayload(BaseModel):
     html: str
 
 
 class MapFieldsRequest(BaseModel):
-    inputs: Optional[List[Dict[str, Any]]] = None
+    inputs: Optional[List[Dict[str, Any]]] = Field(default=None, alias="fields")
     html: Optional[str] = None
+
+    class Config:
+        populate_by_name = True
+        extra = "allow"
 
 
 class SubmitApplicationRequest(BaseModel):
-    company: str
-    position: str
-    application_fields: Dict[str, Any]
-    user_confirmed: bool  # Explicit confirmation safeguard
+    company: str = ""
+    position: Optional[str] = Field(default="", alias="job_title")
+    job_id: Optional[str] = ""
+    portal: Optional[str] = "test_job_portal"
+    application_url: Optional[str] = ""
+    application_fields: Optional[Dict[str, Any]] = Field(default_factory=dict, alias="filled_fields")
+    user_confirmed: bool = False  # Explicit confirmation safeguard
+
+    class Config:
+        populate_by_name = True
+        extra = "allow"
 
 
 @router.post("/analyze")
@@ -79,8 +92,12 @@ def submit_application(req: SubmitApplicationRequest):
 
     # Log to tracker
     tracked = application_tracker.add({
+        "job_id": req.job_id,
         "company": req.company,
         "position": req.position,
+        "job_title": req.position,
+        "portal": req.portal,
+        "application_url": req.application_url,
         "status": "Applied",
         "notes": f"Submitted via Smart Form Assistant with {len(req.application_fields)} populated fields.",
         "accessibility_info": "User confirmed accessible submission."

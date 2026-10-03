@@ -22,23 +22,31 @@ llm_client = LLMClient()
 
 
 class ExtensionJobItem(BaseModel):
-    job_id: str
-    title: str
-    company: str
+    job_id: Optional[str] = Field(default="", alias="id")
+    title: str = ""
+    company: str = ""
     location: Optional[str] = ""
-    employment_type: Optional[str] = ""
+    employment_type: Optional[str] = Field(default="", alias="employmentType")
     experience: Optional[str] = ""
     skills: List[str] = Field(default_factory=list)
     description: Optional[str] = ""
-    job_url: Optional[str] = ""
+    job_url: Optional[str] = Field(default="", alias="url")
     source: Optional[str] = "test_job_portal"
     scraped_at: Optional[str] = ""
 
+    class Config:
+        populate_by_name = True
+        extra = "allow"
+
 
 class ExtensionIngestRequest(BaseModel):
-    source: Optional[str] = "test_job_portal"
-    page_url: Optional[str] = ""
+    source: Optional[str] = Field(default="test_job_portal", alias="portal")
+    page_url: Optional[str] = Field(default="", alias="url")
     jobs: List[ExtensionJobItem] = Field(default_factory=list)
+
+    class Config:
+        populate_by_name = True
+        extra = "allow"
 
 
 class JobTextRequest(BaseModel):
@@ -193,6 +201,27 @@ def get_demo_job():
     }
 
 
+SCRAPED_JOBS_FILE = Path("data/scraped_jobs.json")
+
+def load_scraped_jobs() -> List[Dict[str, Any]]:
+    if SCRAPED_JOBS_FILE.exists():
+        try:
+            return json.loads(SCRAPED_JOBS_FILE.read_text(encoding="utf-8"))
+        except Exception:
+            return []
+    return []
+
+def save_scraped_jobs(jobs_list: List[Dict[str, Any]]) -> None:
+    try:
+        SCRAPED_JOBS_FILE.parent.mkdir(parents=True, exist_ok=True)
+        SCRAPED_JOBS_FILE.write_text(json.dumps(jobs_list, indent=2), encoding="utf-8")
+    except Exception as e:
+        logger.error(f"Failed to persist scraped jobs: {e}")
+
+# Storage for scraped jobs from extension (persisted to data/scraped_jobs.json)
+SCRAPED_JOBS_STORE: List[Dict[str, Any]] = load_scraped_jobs()
+
+
 @router.post("/extension-ingest")
 def ingest_extension_jobs(req: ExtensionIngestRequest):
     """
@@ -214,11 +243,46 @@ def ingest_extension_jobs(req: ExtensionIngestRequest):
     logger.info("\n".join(log_lines))
     print("\n".join(log_lines))
 
+    # Update scraped jobs store (avoiding duplicates by job_id/title+company)
+    current_jobs = load_scraped_jobs()
+    for j in req.jobs:
+        job_dict = {
+            "id": j.job_id,
+            "job_id": j.job_id,
+            "title": j.title,
+            "company": j.company,
+            "location": j.location,
+            "work_mode": "Remote" if "remote" in (j.location or "").lower() else "Full-time",
+            "type": j.employment_type or "Full-time",
+            "employment_type": j.employment_type or "Full-time",
+            "experience": j.experience,
+            "skills": j.skills,
+            "description": j.description,
+            "job_url": j.job_url,
+            "source": req.source or "test_job_portal",
+            "scraped_at": j.scraped_at,
+            "match_percentage": 90,
+            "matched_skills": j.skills[:3],
+            "missing_skills": []
+        }
+        # Deduplicate
+        existing_idx = next((i for i, ej in enumerate(current_jobs) if ej.get("job_id") == j.job_id or (ej.get("title") == j.title and ej.get("company") == j.company)), None)
+        if existing_idx is not None:
+            current_jobs[existing_idx] = job_dict
+        else:
+            current_jobs.insert(0, job_dict)
+
+    save_scraped_jobs(current_jobs)
+    global SCRAPED_JOBS_STORE
+    SCRAPED_JOBS_STORE = current_jobs
+
     return {
+        "status": "success",
         "success": True,
         "source": req.source,
         "page_url": req.page_url,
         "received": received_count,
+        "jobs_received": received_count,
         "jobs": [
             {
                 "job_id": j.job_id,
@@ -233,4 +297,16 @@ def ingest_extension_jobs(req: ExtensionIngestRequest):
             for j in req.jobs
         ]
     }
+
+
+@router.get("/scraped")
+def get_scraped_jobs():
+    """Retrieve recently scraped jobs from the Chrome Extension."""
+    jobs = load_scraped_jobs()
+    return {
+        "status": "success",
+        "count": len(jobs),
+        "jobs": jobs
+    }
+
 

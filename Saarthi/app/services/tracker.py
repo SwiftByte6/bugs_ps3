@@ -70,8 +70,12 @@ class ApplicationTracker:
 
         new_record = {
             "id": new_id,
+            "job_id": app_data.get("job_id"),
             "company": app_data.get("company", "Unknown"),
-            "position": app_data.get("position", "Applicant"),
+            "position": app_data.get("position") or app_data.get("job_title", "Applicant"),
+            "job_title": app_data.get("job_title") or app_data.get("position", "Applicant"),
+            "portal": app_data.get("portal", ""),
+            "application_url": app_data.get("application_url", ""),
             "date_applied": app_data.get("date_applied") or datetime.now().strftime("%Y-%m-%d"),
             "status": status,
             "interview_date": app_data.get("interview_date"),

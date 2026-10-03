@@ -138,6 +138,178 @@ export default async function TestJobDetailPage({ params }) {
             </div>
           </div>
 
+          {/* Realistic Application Form for Testing Extension Autofill (Requirement 5, 6, 8, 9) */}
+          <div id="application-form-section" className="pt-6 border-t border-gray-200">
+            <h2 className="text-lg font-bold text-gray-900 mb-1">
+              Apply for this Role
+            </h2>
+            <p className="text-xs text-gray-500 mb-4">
+              Test portal application form. You can use the Saarthi Extension popup to audit and safely fill verified fields.
+            </p>
+
+            <form
+              id="job-application-form"
+              className="space-y-4 bg-gray-50 p-6 rounded-lg border border-gray-200"
+              onSubmit={(e) => {
+                e.preventDefault();
+                alert("✓ Application submitted via test portal!");
+              }}
+            >
+              {/* Safe Fields */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label htmlFor="applicant_name" className="block text-xs font-semibold text-gray-700 mb-1">
+                    Full Name <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    id="applicant_name"
+                    name="applicant_name"
+                    required
+                    placeholder="e.g. Alex Sharma"
+                    className="w-full px-3 py-2 text-sm bg-white border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="applicant_email" className="block text-xs font-semibold text-gray-700 mb-1">
+                    Email Address <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="email"
+                    id="applicant_email"
+                    name="applicant_email"
+                    required
+                    placeholder="e.g. alex@example.com"
+                    className="w-full px-3 py-2 text-sm bg-white border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="applicant_phone" className="block text-xs font-semibold text-gray-700 mb-1">
+                    Phone Number <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="tel"
+                    id="applicant_phone"
+                    name="applicant_phone"
+                    required
+                    placeholder="e.g. +91 98765 43210"
+                    className="w-full px-3 py-2 text-sm bg-white border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="applicant_location" className="block text-xs font-semibold text-gray-700 mb-1">
+                    Current Location
+                  </label>
+                  <input
+                    type="text"
+                    id="applicant_location"
+                    name="applicant_location"
+                    placeholder="e.g. Mumbai, India"
+                    className="w-full px-3 py-2 text-sm bg-white border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="applicant_linkedin" className="block text-xs font-semibold text-gray-700 mb-1">
+                    LinkedIn Profile URL
+                  </label>
+                  <input
+                    type="url"
+                    id="applicant_linkedin"
+                    name="applicant_linkedin"
+                    placeholder="https://linkedin.com/in/username"
+                    className="w-full px-3 py-2 text-sm bg-white border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="applicant_portfolio" className="block text-xs font-semibold text-gray-700 mb-1">
+                    Portfolio / Website URL
+                  </label>
+                  <input
+                    type="url"
+                    id="applicant_portfolio"
+                    name="applicant_portfolio"
+                    placeholder="https://portfolio.dev"
+                    className="w-full px-3 py-2 text-sm bg-white border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="applicant_education" className="block text-xs font-semibold text-gray-700 mb-1">
+                    Highest Education / Degree
+                  </label>
+                  <input
+                    type="text"
+                    id="applicant_education"
+                    name="applicant_education"
+                    placeholder="e.g. B.Tech in Computer Science"
+                    className="w-full px-3 py-2 text-sm bg-white border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="applicant_skills" className="block text-xs font-semibold text-gray-700 mb-1">
+                    Key Technical Skills
+                  </label>
+                  <input
+                    type="text"
+                    id="applicant_skills"
+                    name="applicant_skills"
+                    placeholder="e.g. Python, React, FastAPI, SQL"
+                    className="w-full px-3 py-2 text-sm bg-white border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500"
+                  />
+                </div>
+              </div>
+
+              {/* Sensitive / Ambiguous Fields - Left for Explicit User Input */}
+              <div className="pt-3 border-t border-gray-200 space-y-3">
+                <div className="p-2.5 rounded-md bg-amber-50 border border-amber-200 text-amber-900 text-xs flex items-center gap-1.5">
+                  <span>🔒 Sensitive/custom questions below require manual confirmation before submission.</span>
+                </div>
+
+                <div>
+                  <label htmlFor="expected_salary" className="block text-xs font-semibold text-gray-700 mb-1">
+                    Expected Salary (Annual INR)
+                  </label>
+                  <input
+                    type="text"
+                    id="expected_salary"
+                    name="expected_salary"
+                    placeholder="e.g. Rs. 8,00,000"
+                    className="w-full px-3 py-2 text-sm bg-white border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="accommodation_request" className="block text-xs font-semibold text-gray-700 mb-1">
+                    Workplace / Interview Accommodation Request (Optional)
+                  </label>
+                  <textarea
+                    id="accommodation_request"
+                    name="accommodation_request"
+                    rows="2"
+                    placeholder="Describe any assistive technology or interview accommodations you require..."
+                    className="w-full px-3 py-2 text-sm bg-white border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500"
+                  ></textarea>
+                </div>
+              </div>
+
+              <div className="pt-2 flex justify-end">
+                <button
+                  type="submit"
+                  id="btn-submit-application"
+                  className="px-6 py-2 bg-purple-700 hover:bg-purple-800 text-white text-sm font-semibold rounded-md transition-colors"
+                >
+                  Submit Application
+                </button>
+              </div>
+            </form>
+          </div>
+
           <div className="pt-4 border-t border-gray-100 text-xs text-gray-400">
             Job Reference ID: <span className="job-id-text font-mono">{job.id}</span>
           </div>
@@ -146,3 +318,4 @@ export default async function TestJobDetailPage({ params }) {
     </main>
   );
 }
+

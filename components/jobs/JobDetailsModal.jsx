@@ -123,23 +123,36 @@ export default function JobDetailsModal({ job, isOpen, onClose, onApply }) {
             </div>
           </CardContent>
 
-          <CardFooter className="flex items-center justify-between">
+          <CardFooter className="flex items-center justify-between gap-3">
             <Button variant="secondary" size="md" onClick={onClose}>
               Close
             </Button>
-            <Button
-              variant="primary"
-              size="md"
-              icon={ArrowRight}
-              iconPosition="right"
-              onClick={() => {
-                onApply(job);
-                onClose();
-              }}
-              className="bg-[#40189D] hover:bg-[#32127A] font-bold"
-            >
-              Apply with Saarthi
-            </Button>
+            <div className="flex items-center gap-2.5">
+              {job.job_url && (
+                <a
+                  href={job.job_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-bold bg-white text-[#40189D] border border-[#40189D] hover:bg-purple-50 transition-all shadow-xs"
+                >
+                  <span>Open Application Page</span>
+                  <ArrowRight className="w-4 h-4" />
+                </a>
+              )}
+              <Button
+                variant="primary"
+                size="md"
+                icon={ArrowRight}
+                iconPosition="right"
+                onClick={() => {
+                  onApply(job);
+                  onClose();
+                }}
+                className="bg-[#40189D] hover:bg-[#32127A] font-bold"
+              >
+                Smart Apply with Saarthi
+              </Button>
+            </div>
           </CardFooter>
         </Card>
       </div>

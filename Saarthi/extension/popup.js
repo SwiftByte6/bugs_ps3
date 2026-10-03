@@ -137,28 +137,55 @@ document.getElementById("btn-scrape-jobs")?.addEventListener("click", async () =
                 jobs: jobs
             };
 
-            const res = await fetch(`${FASTAPI_URL}/api/jobs/extension-ingest`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(ingestPayload)
-            });
+            let backendRes = null;
+            let syncTarget = "FastAPI Backend";
 
-            if (!res.ok) {
-                const errJson = await res.json().catch(() => ({}));
-                throw new Error(errJson.detail || `HTTP ${res.status}`);
+            try {
+                const res = await fetch(`${FASTAPI_URL}/api/jobs/extension-ingest`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(ingestPayload)
+                });
+                if (res.ok) {
+                    backendRes = await res.json();
+                }
+            } catch (fastApiErr) {
+                // Ignore and try dashboard proxy
             }
 
-            const backendRes = await res.json();
+            // Sync with Dashboard route handler
+            try {
+                const dashRes = await fetch("http://localhost:3000/api/jobs/extension-ingest", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(ingestPayload)
+                });
+                if (dashRes.ok) {
+                    const dashData = await dashRes.json();
+                    if (!backendRes) {
+                        backendRes = dashData;
+                        syncTarget = "Dashboard Sync";
+                    }
+                }
+            } catch (dashErr) {
+                // Ignore
+            }
+
+            if (!backendRes) {
+                throw new Error("Could not connect to FastAPI (8000) or Dashboard (3000). Ensure services are running.");
+            }
+
             const now = new Date().toLocaleTimeString();
             if (devLastSync) devLastSync.textContent = now;
 
             statusBox.innerHTML = `<strong>✓ Ingestion Succeeded!</strong><br>` +
-                `• Source: <code>${backendRes.source}</code><br>` +
-                `• Jobs Received by Backend: <strong>${backendRes.received}</strong><br>` +
-                `• First Job: ${backendRes.jobs[0]?.title} (${backendRes.jobs[0]?.company})<br>` +
-                `• Backend Sync Time: ${now}`;
+                `• Target: <code>${syncTarget}</code><br>` +
+                `• Jobs Received: <strong>${backendRes.received || backendRes.jobs_received || jobs.length}</strong><br>` +
+                `• First Job: ${backendRes.jobs?.[0]?.title || jobs[0]?.title} (${backendRes.jobs?.[0]?.company || jobs[0]?.company})<br>` +
+                `• Sync Time: ${now}<br>` +
+                `<span style="color:#4ade80;font-weight:bold;">→ Scraped jobs are now live in Dashboard &rarr; Jobs!</span>`;
         } catch (err) {
-            statusBox.innerHTML = `<span style="color: #ef4444;">✕ Backend Ingestion Error:</span><br>${err.message}`;
+            statusBox.innerHTML = `<span style="color: #ef4444;">✕ Ingestion Error:</span><br>${err.message}`;
         }
     });
 });

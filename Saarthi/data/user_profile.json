@@ -1,32 +1,35 @@
 {
   "accessibility": {
     "screen_reader": false,
-    "voice_navigation": false,
+    "voice_navigation": true,
     "keyboard_navigation": true,
     "captions": true,
     "text_first": true,
-    "text_to_speech": false,
-    "speech_to_text": false,
-    "large_text": false,
+    "text_to_speech": true,
+    "speech_to_text": true,
+    "large_text": true,
     "high_contrast": false,
     "reduced_motion": false,
-    "dyslexia_mode": false,
+    "dyslexia_mode": true,
     "simplified_language": true,
     "eye_control": false,
     "blink_control": false,
     "preferred_language": "English",
     "accommodation_disclosure": "ask_every_time",
-    "declared_needs": [],
-    "additional_requirements": "",
-    "head_gestures": false,
-    "hand_gestures": false,
-    "focus_mode": false
+    "declared_needs": [
+      "Dyslexia",
+      "Motor disability"
+    ],
+    "additional_requirements": "Extra time needed",
+    "head_gestures": true,
+    "hand_gestures": true,
+    "focus_mode": true
   },
   "resume_profile": {
     "name": "Test User",
-    "email": "candidate@example.com",
-    "phone": "+91 98765 43210",
-    "location": "Mumbai, India",
+    "email": "test@example.com",
+    "phone": "+91 9000000000",
+    "location": "Pune, India",
     "education": [
       {
         "degree": "B.Tech Computer Engineering",
