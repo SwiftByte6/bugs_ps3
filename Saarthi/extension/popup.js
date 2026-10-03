@@ -8,9 +8,17 @@ const connDot = document.getElementById("conn-dot");
 const connText = document.getElementById("conn-text");
 const profileText = document.getElementById("profile-text");
 
-// Initialize Connection Check
+// Developer Debug Elements
+const devPortalName = document.getElementById("dev-portal-name");
+const devPortalStatus = document.getElementById("dev-portal-status");
+const devJobsFound = document.getElementById("dev-jobs-found");
+const devBackendStatus = document.getElementById("dev-backend-status");
+const devLastSync = document.getElementById("dev-last-sync");
+
+// Initialize Connection Check & Portal Detection
 document.addEventListener("DOMContentLoaded", async () => {
-    checkHealth();
+    await checkHealth();
+    await detectActivePortal();
 });
 
 async function checkHealth() {
@@ -23,6 +31,10 @@ async function checkHealth() {
             connText.textContent = "FastAPI Ready";
             profileText.textContent = "✓ Profile Synced";
             profileText.style.color = "#10B981";
+            if (devBackendStatus) {
+                devBackendStatus.textContent = "● Connected";
+                devBackendStatus.style.color = "#4ade80";
+            }
         } else {
             throw new Error();
         }
@@ -33,8 +45,125 @@ async function checkHealth() {
         connText.textContent = "FastAPI Offline";
         profileText.textContent = "Local Fallback";
         profileText.style.color = "#6F6F73";
+        if (devBackendStatus) {
+            devBackendStatus.textContent = "● Disconnected";
+            devBackendStatus.style.color = "#f87171";
+        }
     }
 }
+
+async function ensureContentScriptInjected(tabId) {
+    try {
+        await chrome.scripting.executeScript({
+            target: { tabId: tabId },
+            files: ["content.js"]
+        });
+    } catch (e) {
+        // Already injected or restricted page
+    }
+}
+
+async function detectActivePortal() {
+    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    if (!tab || !tab.id) return;
+
+    await ensureContentScriptInjected(tab.id);
+
+    chrome.tabs.sendMessage(tab.id, { action: "DETECT_PORTAL" }, (response) => {
+        if (chrome.runtime.lastError || !response) {
+            if (devPortalName) devPortalName.textContent = "Not Detected";
+            if (devPortalStatus) devPortalStatus.textContent = "○ Standby (Refresh tab)";
+            return;
+        }
+
+        if (response.detected) {
+            if (devPortalName) {
+                devPortalName.textContent = response.portal_name;
+                devPortalName.style.color = "#a78bfa";
+            }
+            if (devPortalStatus) {
+                devPortalStatus.textContent = `● Detected (${response.page_type || 'portal'})`;
+                devPortalStatus.style.color = "#4ade80";
+            }
+            if (devJobsFound) {
+                devJobsFound.textContent = response.jobs_count || 0;
+            }
+            statusBox.innerHTML = `<strong>${response.portal_name} Active:</strong><br>` +
+                `• Found ${response.jobs_count} job(s) on current page.<br>` +
+                `• Click <strong>Scrape Portal Jobs</strong> to send structured JSON to Saarthi backend.`;
+        } else {
+            if (devPortalName) devPortalName.textContent = "Generic Webpage";
+            if (devPortalStatus) {
+                devPortalStatus.textContent = "○ Outside test portal";
+                devPortalStatus.style.color = "#94a3b8";
+            }
+        }
+    });
+}
+
+// 0. Scrape Portal Jobs & Ingest to Backend (POST /api/jobs/extension-ingest)
+document.getElementById("btn-scrape-jobs")?.addEventListener("click", async () => {
+    statusBox.textContent = "Extracting structured job cards from page DOM...";
+    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    if (!tab || !tab.id) {
+        statusBox.textContent = "No active tab found.";
+        return;
+    }
+
+    await ensureContentScriptInjected(tab.id);
+
+    chrome.tabs.sendMessage(tab.id, { action: "SCRAPE_JOBS" }, async (response) => {
+        if (chrome.runtime.lastError || !response || !response.data) {
+            statusBox.textContent = "Could not scrape page. Please reload the test portal tab.";
+            return;
+        }
+
+        const scrapeData = response.data;
+        const jobs = scrapeData.jobs || [];
+
+        if (jobs.length === 0) {
+            statusBox.textContent = "No job cards detected on active page.";
+            if (devJobsFound) devJobsFound.textContent = "0";
+            return;
+        }
+
+        if (devJobsFound) devJobsFound.textContent = jobs.length;
+        statusBox.textContent = `Scraped ${jobs.length} jobs. Sending structured JSON to Saarthi backend...`;
+
+        try {
+            const ingestPayload = {
+                source: scrapeData.source || "test_job_portal",
+                page_url: scrapeData.page_url || tab.url,
+                jobs: jobs
+            };
+
+            const res = await fetch(`${FASTAPI_URL}/api/jobs/extension-ingest`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(ingestPayload)
+            });
+
+            if (!res.ok) {
+                const errJson = await res.json().catch(() => ({}));
+                throw new Error(errJson.detail || `HTTP ${res.status}`);
+            }
+
+            const backendRes = await res.json();
+            const now = new Date().toLocaleTimeString();
+            if (devLastSync) devLastSync.textContent = now;
+
+            statusBox.innerHTML = `<strong>✓ Ingestion Succeeded!</strong><br>` +
+                `• Source: <code>${backendRes.source}</code><br>` +
+                `• Jobs Received by Backend: <strong>${backendRes.received}</strong><br>` +
+                `• First Job: ${backendRes.jobs[0]?.title} (${backendRes.jobs[0]?.company})<br>` +
+                `• Backend Sync Time: ${now}`;
+        } catch (err) {
+            statusBox.innerHTML = `<span style="color: #ef4444;">✕ Backend Ingestion Error:</span><br>${err.message}`;
+        }
+    });
+});
+
+
 
 // 1. Open Full Dashboard
 document.getElementById("btn-open-dashboard")?.addEventListener("click", () => {

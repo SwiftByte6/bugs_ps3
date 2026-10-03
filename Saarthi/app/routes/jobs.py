@@ -1,7 +1,8 @@
 import json
+import logging
 from pathlib import Path
 from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import Dict, Any, Optional, List
 from app.services.jobs import (
     parse_job_description,
@@ -15,8 +16,29 @@ from app.services.matcher import job_matcher
 from app.services.profile import user_profile_service
 from app.llm.client import LLMClient
 
+logger = logging.getLogger("app.jobs.ingestion")
 router = APIRouter(prefix="/api/jobs", tags=["Jobs"])
 llm_client = LLMClient()
+
+
+class ExtensionJobItem(BaseModel):
+    job_id: str
+    title: str
+    company: str
+    location: Optional[str] = ""
+    employment_type: Optional[str] = ""
+    experience: Optional[str] = ""
+    skills: List[str] = Field(default_factory=list)
+    description: Optional[str] = ""
+    job_url: Optional[str] = ""
+    source: Optional[str] = "test_job_portal"
+    scraped_at: Optional[str] = ""
+
+
+class ExtensionIngestRequest(BaseModel):
+    source: Optional[str] = "test_job_portal"
+    page_url: Optional[str] = ""
+    jobs: List[ExtensionJobItem] = Field(default_factory=list)
 
 
 class JobTextRequest(BaseModel):
@@ -169,3 +191,46 @@ def get_demo_job():
         "job_json": json.loads(demo_file.read_text(encoding="utf-8")),
         "raw_text": demo_txt.read_text(encoding="utf-8")
     }
+
+
+@router.post("/extension-ingest")
+def ingest_extension_jobs(req: ExtensionIngestRequest):
+    """
+    Ingest structured jobs scraped by the Saarthi Chrome Extension.
+    Performs validation, structured logging, and returns confirmation.
+    """
+    received_count = len(req.jobs)
+    
+    # Structured console logging matching specification
+    log_lines = [
+        "\n[Saarthi Job Ingestion]",
+        f"Source: {req.source}",
+        f"Page URL: {req.page_url}",
+        f"Jobs received: {received_count}"
+    ]
+    for idx, job in enumerate(req.jobs, start=1):
+        log_lines.append(f"{idx}. {job.title} — {job.company} ({job.job_id})")
+    
+    logger.info("\n".join(log_lines))
+    print("\n".join(log_lines))
+
+    return {
+        "success": True,
+        "source": req.source,
+        "page_url": req.page_url,
+        "received": received_count,
+        "jobs": [
+            {
+                "job_id": j.job_id,
+                "title": j.title,
+                "company": j.company,
+                "location": j.location,
+                "employment_type": j.employment_type,
+                "experience": j.experience,
+                "skills": j.skills,
+                "job_url": j.job_url
+            }
+            for j in req.jobs
+        ]
+    }
+

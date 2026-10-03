@@ -17,16 +17,28 @@
     </div>
 
     <div class="ext-actions">
+        <button id="btn-scrape-jobs" class="btn btn-accent" style="font-weight: 700;">📥 Scrape Portal Jobs</button>
         <button id="btn-scan" class="btn btn-primary">🔍 Scan Active Page</button>
         <button id="btn-audit" class="btn btn-outline">♿ Audit Accessibility</button>
-        <button id="btn-fill-safe" class="btn btn-accent">✏️ Fill Safe Fields</button>
+        <button id="btn-fill-safe" class="btn btn-outline">✏️ Fill Safe Fields</button>
         <button id="btn-open-dashboard" class="btn btn-outline">🌐 Open Full Dashboard</button>
     </div>
 
+    <!-- DEVELOPER-ONLY STATUS / DEBUG PANEL (Requirement 10) -->
+    <div id="dev-portal-panel" class="status-panel" style="background: #0f172a; color: #f8fafc; font-family: monospace; font-size: 11px; margin-top: 8px; border-left: 3px solid #8b5cf6;">
+        <div style="font-weight: bold; color: #a78bfa; margin-bottom: 4px;">SAARTHI EXTENSION — PORTAL DEBUG</div>
+        <div>Portal: <span id="dev-portal-name" style="font-weight: bold;">Detecting...</span></div>
+        <div>Status: <span id="dev-portal-status" style="color: #94a3b8;">Checking page</span></div>
+        <div>Jobs found: <span id="dev-jobs-found" style="font-weight: bold; color: #38bdf8;">0</span></div>
+        <div>Backend: <span id="dev-backend-status" style="color: #94a3b8;">Checking...</span></div>
+        <div>Last sync: <span id="dev-last-sync" style="color: #cbd5e1;">Never</span></div>
+    </div>
+
     <div id="ext-status" class="status-panel">
-        Click <strong>Scan Active Page</strong> to inspect job application form controls.
+        Open <strong>http://localhost:3000/test-jobs</strong> to test DOM scraping.
     </div>
 
     <script src="popup.js"></script>
 </body>
 </html>
+

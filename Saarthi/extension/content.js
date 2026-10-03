@@ -1,6 +1,113 @@
 // Saarthi Content Script - Injected into active job portals
 // Extracts DOM elements and passes them to background / popup without storing credentials.
 
+function isTestJobPortal() {
+    const url = window.location.href;
+    return url.includes("localhost:3000/test-jobs") || url.includes("127.0.0.1:3000/test-jobs");
+}
+
+function scrapeJobCards() {
+    const jobs = [];
+    const currentUrl = window.location.href;
+    const nowIso = new Date().toISOString();
+
+    // Case 1: Job Listing Page (cards with .job-card)
+    const cards = document.querySelectorAll(".job-card");
+    if (cards.length > 0) {
+        cards.forEach((card, index) => {
+            const jobId = card.getAttribute("data-job-id") || `job-${String(index + 1).padStart(3, "0")}`;
+            const titleEl = card.querySelector(".job-title");
+            const companyEl = card.querySelector(".company");
+            const locationEl = card.querySelector(".location");
+            const empTypeEl = card.querySelector(".employment-type");
+            const expEl = card.querySelector(".experience");
+            const descEl = card.querySelector(".description");
+            const linkEl = card.querySelector(".job-link");
+            const skillEls = card.querySelectorAll(".skills .skill");
+
+            const skills = Array.from(skillEls).map(s => s.innerText.trim()).filter(Boolean);
+
+            let jobUrl = linkEl ? linkEl.getAttribute("href") : "";
+            if (jobUrl && !jobUrl.startsWith("http")) {
+                jobUrl = new URL(jobUrl, window.location.origin).href;
+            }
+            if (!jobUrl) {
+                jobUrl = `${window.location.origin}/test-jobs/${jobId}`;
+            }
+
+            jobs.push({
+                job_id: jobId,
+                title: titleEl ? titleEl.innerText.trim() : "Unknown Title",
+                company: companyEl ? companyEl.innerText.trim() : "Unknown Company",
+                location: locationEl ? locationEl.innerText.replace("📍", "").trim() : "",
+                employment_type: empTypeEl ? empTypeEl.innerText.replace("💼", "").trim() : "",
+                experience: expEl ? expEl.innerText.replace("⏳", "").trim() : "",
+                skills: skills,
+                description: descEl ? descEl.innerText.trim() : "",
+                job_url: jobUrl,
+                source: "test_job_portal",
+                scraped_at: nowIso
+            });
+        });
+        return {
+            page_type: "listing",
+            page_url: currentUrl,
+            source: "test_job_portal",
+            count: jobs.length,
+            jobs: jobs
+        };
+    }
+
+    // Case 2: Individual Job Detail Page (.job-detail-card or /test-jobs/job-XXX)
+    const detailCard = document.querySelector(".job-detail-card");
+    if (detailCard || currentUrl.match(/\/test-jobs\/[^\/]+$/)) {
+        const root = detailCard || document;
+        const jobIdAttr = detailCard ? detailCard.getAttribute("data-job-id") : null;
+        const urlMatch = currentUrl.match(/\/test-jobs\/([^\/\?#]+)/);
+        const jobId = jobIdAttr || (urlMatch ? urlMatch[1] : "job-detail");
+
+        const titleEl = root.querySelector(".job-title") || root.querySelector("h1");
+        const companyEl = root.querySelector(".company");
+        const locationEl = root.querySelector(".location");
+        const empTypeEl = root.querySelector(".employment-type");
+        const expEl = root.querySelector(".experience");
+        const descEl = root.querySelector(".description");
+        const skillEls = root.querySelectorAll(".skills .skill");
+
+        const skills = Array.from(skillEls).map(s => s.innerText.trim()).filter(Boolean);
+
+        const singleJob = {
+            job_id: jobId,
+            title: titleEl ? titleEl.innerText.trim() : "Unknown Title",
+            company: companyEl ? companyEl.innerText.trim() : "Unknown Company",
+            location: locationEl ? locationEl.innerText.replace("📍", "").trim() : "",
+            employment_type: empTypeEl ? empTypeEl.innerText.replace("💼", "").trim() : "",
+            experience: expEl ? expEl.innerText.replace("⏳", "").trim() : "",
+            skills: skills,
+            description: descEl ? descEl.innerText.trim() : "",
+            job_url: currentUrl,
+            source: "test_job_portal",
+            scraped_at: nowIso
+        };
+
+        return {
+            page_type: "detail",
+            page_url: currentUrl,
+            source: "test_job_portal",
+            count: 1,
+            jobs: [singleJob]
+        };
+    }
+
+    return {
+        page_type: "unknown",
+        page_url: currentUrl,
+        source: "unknown",
+        count: 0,
+        jobs: []
+    };
+}
+
 function extractPageDOM() {
     const inputs = [];
     const fields = document.querySelectorAll("input, select, textarea");
@@ -53,7 +160,24 @@ function extractPageDOM() {
 
 // Listen for messages from popup or background
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-    if (request.action === "EXTRACT_DOM") {
+    if (request.action === "DETECT_PORTAL") {
+        const detected = isTestJobPortal();
+        const scrapeResult = detected ? scrapeJobCards() : { count: 0, jobs: [] };
+        sendResponse({
+            status: "success",
+            detected: detected,
+            portal_name: detected ? "Test Job Portal" : "Other Page",
+            page_type: scrapeResult.page_type,
+            jobs_count: scrapeResult.count,
+            page_url: window.location.href
+        });
+    } else if (request.action === "SCRAPE_JOBS") {
+        const scrapeResult = scrapeJobCards();
+        sendResponse({
+            status: "success",
+            data: scrapeResult
+        });
+    } else if (request.action === "EXTRACT_DOM") {
         const domData = extractPageDOM();
         sendResponse({ status: "success", data: domData });
     } else if (request.action === "FILL_FIELDS") {
@@ -91,3 +215,4 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     }
     return true;
 });
+
